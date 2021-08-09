@@ -1,0 +1,34 @@
+packages:
+  ${PACKAGE}:
+    version: 1.0
+    license: Apache-2.0
+    actions:
+      demo-action:
+        function: dist/demo-action.js
+        runtime: nodejs:12
+        web-export: true
+        limits:
+          timeout: 60000
+          memorySize: 256
+        inputs:
+          speechToTextUsername: ${SPEECH_TO_TEXT_USERNAME}
+          speechToTextPassword: ${SPEECH_TO_TEXT_PASSWORD}
+          speechToTextIamApikey: ${SPEECH_TO_TEXT_IAM_APIKEY}
+          speechToTextUrl: ${SPEECH_TO_TEXT_URL}
+          textToSpeechUsername: ${TEXT_TO_SPEECH_USERNAME}
+          textToSpeechPassword: ${TEXT_TO_SPEECH_PASSWORD}
+          textToSpeechIamApikey: ${TEXT_TO_SPEECH_IAM_APIKEY}
+          textToSpeechUrl: ${TEXT_TO_SPEECH_URL}
+          wuSlackBotToken: ${WU_SLACK_BOT_TOKEN}
+          wusoSlackBotToken: ${WUSO_SLACK_BOT_TOKEN}
+    apis:
+      demo-api-gateway:
+        demo:
+          demo_get:
+            demo-action:
+              method: GET
+              response: json
+          demo_post:
+            demo-action:
+              method: POST
+              response: json

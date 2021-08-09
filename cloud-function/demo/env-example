@@ -1,0 +1,1 @@
+COS_ACCESS={"prod": {"access_key_id": "", "secret_access_key": "", "apikey": "", "resource_instance_id": "", "bucket": ""}, "stage": {"access_key_id": "", "secret_access_key": "", "apikey": "", "resource_instance_id": "", "bucket": "s-stg.w-x.co"}, "dev": {"access_key_id": "", "secret_access_key": "", "apikey": "", "resource_instance_id": "", "bucket": ""}}

@@ -1,0 +1,374 @@
+{
+    "swagger": "2.0",
+    "basePath": "/watson-weather",
+    "info": {
+        "title": "watson-weather",
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/alexa": {
+            "post": {
+                "operationId": "postApiAlexa",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Request body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A successful invocation response"
+                    }
+                },
+                "x-openwhisk": {
+                    "action": "watson-action",
+                    "namespace": "jefflu_sandbox",
+                    "package": "wx-labs",
+                    "url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json"
+                }
+            }
+        },
+        "/api/nlp": {
+            "post": {
+                "operationId": "postApiNlp",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Request body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A successful invocation response"
+                    }
+                },
+                "x-openwhisk": {
+                    "action": "watson-action",
+                    "namespace": "jefflu_sandbox",
+                    "package": "wx-labs",
+                    "url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json"
+                }
+            }
+        },
+        "/api/slack": {
+            "post": {
+                "operationId": "postApiSlack",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Request body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A successful invocation response"
+                    }
+                },
+                "x-openwhisk": {
+                    "action": "watson-action",
+                    "namespace": "jefflu_sandbox",
+                    "package": "wx-labs",
+                    "url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json"
+                }
+            }
+        },
+        "/api/slack-interactive": {
+            "post": {
+                "operationId": "postApiSlack-interactive",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Request body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A successful invocation response"
+                    }
+                },
+                "x-openwhisk": {
+                    "action": "watson-action",
+                    "namespace": "jefflu_sandbox",
+                    "package": "wx-labs",
+                    "url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json"
+                }
+            }
+        },
+        "/api/slack-menu": {
+            "post": {
+                "operationId": "postApiSlack-menu",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Request body"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A successful invocation response"
+                    }
+                },
+                "x-openwhisk": {
+                    "action": "watson-action",
+                    "namespace": "jefflu_sandbox",
+                    "package": "wx-labs",
+                    "url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json"
+                }
+            }
+        },
+        "/api/speech-to-text/token": {
+            "get": {
+                "operationId": "getApiSpeech-to-textToken",
+                "responses": {
+                    "200": {
+                        "description": "A successful invocation response"
+                    }
+                },
+                "x-openwhisk": {
+                    "action": "watson-action",
+                    "namespace": "jefflu_sandbox",
+                    "package": "wx-labs",
+                    "url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json"
+                }
+            }
+        },
+        "/api/stt-tts/token": {
+            "get": {
+                "operationId": "getApiStt-ttsToken",
+                "responses": {
+                    "200": {
+                        "description": "A successful invocation response"
+                    }
+                },
+                "x-openwhisk": {
+                    "action": "watson-action",
+                    "namespace": "jefflu_sandbox",
+                    "package": "wx-labs",
+                    "url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json"
+                }
+            }
+        },
+        "/api/text-to-speech/token": {
+            "get": {
+                "operationId": "getApiText-to-speechToken",
+                "responses": {
+                    "200": {
+                        "description": "A successful invocation response"
+                    }
+                },
+                "x-openwhisk": {
+                    "action": "watson-action",
+                    "namespace": "jefflu_sandbox",
+                    "package": "wx-labs",
+                    "url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json"
+                }
+            }
+        }
+    },
+    "x-ibm-configuration": {
+        "assembly": {
+            "execute": [
+                {
+                    "operation-switch": {
+                        "case": [
+                            {
+                                "execute": [
+                                    {
+                                        "set-variable": {
+                                            "actions": [
+                                                {
+                                                    "set": "message.headers.X-Require-Whisk-Auth",
+                                                    "value": "0dbe1f66-e801-4d6e-af73-527b6d4b9447"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "invoke": {
+                                            "target-url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json",
+                                            "verb": "keep"
+                                        }
+                                    }
+                                ],
+                                "operations": [
+                                    "getApiSpeech-to-textToken"
+                                ]
+                            },
+                            {
+                                "execute": [
+                                    {
+                                        "set-variable": {
+                                            "actions": [
+                                                {
+                                                    "set": "message.headers.X-Require-Whisk-Auth",
+                                                    "value": "0dbe1f66-e801-4d6e-af73-527b6d4b9447"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "invoke": {
+                                            "target-url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json",
+                                            "verb": "keep"
+                                        }
+                                    }
+                                ],
+                                "operations": [
+                                    "getApiText-to-speechToken"
+                                ]
+                            },
+                            {
+                                "execute": [
+                                    {
+                                        "set-variable": {
+                                            "actions": [
+                                                {
+                                                    "set": "message.headers.X-Require-Whisk-Auth",
+                                                    "value": "0dbe1f66-e801-4d6e-af73-527b6d4b9447"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "invoke": {
+                                            "target-url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json",
+                                            "verb": "keep"
+                                        }
+                                    }
+                                ],
+                                "operations": [
+                                    "postApiAlexa"
+                                ]
+                            },
+                            {
+                                "execute": [
+                                    {
+                                        "set-variable": {
+                                            "actions": [
+                                                {
+                                                    "set": "message.headers.X-Require-Whisk-Auth",
+                                                    "value": "0dbe1f66-e801-4d6e-af73-527b6d4b9447"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "invoke": {
+                                            "target-url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json",
+                                            "verb": "keep"
+                                        }
+                                    }
+                                ],
+                                "operations": [
+                                    "getApiStt-ttsToken"
+                                ]
+                            },
+                            {
+                                "execute": [
+                                    {
+                                        "set-variable": {
+                                            "actions": [
+                                                {
+                                                    "set": "message.headers.X-Require-Whisk-Auth",
+                                                    "value": "0dbe1f66-e801-4d6e-af73-527b6d4b9447"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "invoke": {
+                                            "target-url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json",
+                                            "verb": "keep"
+                                        }
+                                    }
+                                ],
+                                "operations": [
+                                    "postApiNlp"
+                                ]
+                            },
+                            {
+                                "execute": [
+                                    {
+                                        "set-variable": {
+                                            "actions": [
+                                                {
+                                                    "set": "message.headers.X-Require-Whisk-Auth",
+                                                    "value": "0dbe1f66-e801-4d6e-af73-527b6d4b9447"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "invoke": {
+                                            "target-url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json",
+                                            "verb": "keep"
+                                        }
+                                    }
+                                ],
+                                "operations": [
+                                    "postApiSlack"
+                                ]
+                            },
+                            {
+                                "execute": [
+                                    {
+                                        "set-variable": {
+                                            "actions": [
+                                                {
+                                                    "set": "message.headers.X-Require-Whisk-Auth",
+                                                    "value": "0dbe1f66-e801-4d6e-af73-527b6d4b9447"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "invoke": {
+                                            "target-url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json",
+                                            "verb": "keep"
+                                        }
+                                    }
+                                ],
+                                "operations": [
+                                    "postApiSlack-interactive"
+                                ]
+                            },
+                            {
+                                "execute": [
+                                    {
+                                        "set-variable": {
+                                            "actions": [
+                                                {
+                                                    "set": "message.headers.X-Require-Whisk-Auth",
+                                                    "value": "0dbe1f66-e801-4d6e-af73-527b6d4b9447"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "invoke": {
+                                            "target-url": "https://us-south.functions.cloud.ibm.com/api/v1/web/jefflu_sandbox/wx-labs/watson-action.json",
+                                            "verb": "keep"
+                                        }
+                                    }
+                                ],
+                                "operations": [
+                                    "postApiSlack-menu"
+                                ]
+                            }
+                        ],
+                        "otherwise": [],
+                        "title": "whisk-invoke"
+                    }
+                }
+            ]
+        },
+        "cors": {
+            "enabled": true
+        }
+    }
+}

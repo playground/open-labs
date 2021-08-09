@@ -1,0 +1,39 @@
+packages:
+  ${PACKAGE}:
+    version: 1.0
+    license: Apache-2.0
+    actions:
+      demo-action:
+        function: dist/demo-action.js
+        runtime: nodejs:12
+        web-export: true
+        limits:
+          timeout: 60000
+          memorySize: 256
+        inputs:
+          accessKeyId: ${ACCESSKEYID}
+          secretAccessKey: ${SECRETACCESSKEY}
+          endpoint: ${COS_ENDPOINT}
+          ibmAuthEndpoint: ${COS_IBMAUTHENDPOINT}
+          serviceInstanceId: ${SERVICEINSTANCEID}
+          region: ${REGION}
+          bucket: ${BUCKET}
+    apis:
+      demo-api-gateway:
+        demo:
+          demo_get:
+            demo-action:
+              method: GET
+              response: json
+          demo_post:
+            demo-action:
+              method: POST
+              response: json
+          demo_cos_list:
+            demo-action:
+              method: POST
+              response: json
+          demo_cos_upload:
+            demo-action:
+              method: POST
+              response: json
