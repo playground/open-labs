@@ -3,7 +3,7 @@ packages:
     version: 1.0
     license: Apache-2.0
     actions:
-      demo-action:
+      hzn-action:
         function: dist/hzn-action.js
         runtime: nodejs:12
         web-export: true
@@ -22,13 +22,25 @@ packages:
           wuSlackBotToken: ${WU_SLACK_BOT_TOKEN}
           wusoSlackBotToken: ${WUSO_SLACK_BOT_TOKEN}
     apis:
-      demo-api-gateway:
-        demo:
+      hzn-api-gateway:
+        hzn:
           hzn_mms:
-            demo-action:
+            hzn-action:
               method: GET
               response: json
-          demo_post:
-            demo-action:
+          hzn_obj_url:
+            hzn-action:
+              method: GET
+              response: json
+          hzn_list:
+            hzn-action:
+              method: POST
+              response: json
+          hzn_get:
+            hzn-action:
+              method: GET
+              response: json
+          hzn_post:
+            hzn-action:
               method: POST
               response: json

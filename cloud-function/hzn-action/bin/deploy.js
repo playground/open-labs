@@ -3,6 +3,7 @@ const cp = require('child_process'),
   exec = cp.exec;
 const fs = require('fs');
 var dotenv = require('dotenv');
+const cosAccess = require('../.env-cos.json');
 
 if(fs.existsSync('.env-local')) {
   const localEnv = dotenv.parse(fs.readFileSync('.env-local'));
@@ -51,6 +52,15 @@ let build = {
     });
   },
   getEnvVar: () => {
+    let pEnv = process.env;
+    pEnv.PACKAGE = package;
+    pEnv.ACCESSKEYID = cosAccess[env]['access_key_id'];
+    pEnv.SECRETACCESSKEY = cosAccess[env]['secret_access_key'];
+    pEnv.APIKEYID = cosAccess[env]['apikey'];
+    pEnv.SERVICEINSTANCEID = cosAccess[env]['resource_instance_id'];
+    pEnv.BUCKET = cosAccess[env]['bucket'];
+  },
+  getEnvVar2: () => {
     const cosAccess = JSON.parse(process.env.COS_ACCESS);
     let pEnv = process.env;
     pEnv.PACKAGE = package;

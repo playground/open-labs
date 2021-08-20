@@ -49,7 +49,31 @@ let action = {
     }
     return (action[path] || action[params.method] || action.default)(params);
   },
+  hzn_get: (params: HznParams) => {
+    return of({data: 'test hzn get'});
+  },
+  hzn_post: (params: HznParams) => {
+    return of({data: params.body});
+  },
   hzn_mms: (params: HznParams) => {
+    return new Observable((observer) => {
+      cosClient.getSignedUrl(params)
+      .subscribe((res) => {
+        observer.next(res);
+        observer.complete();
+      })
+    });
+  },
+  hzn_obj_url: (params: HznParams) => {
+    return new Observable((observer) => {
+      cosClient.getSignedUrl(params)
+      .subscribe((res) => {
+        observer.next(res);
+        observer.complete();
+      })
+    });
+  },
+  hzn_mms_file: (params: HznParams) => {
     return new Observable((observer) => {
       let filename = params.filename;
       let url = `https://${params.bucket}/${params.directory}/${filename}`;
@@ -85,7 +109,7 @@ let action = {
   demo_post: (params: HznParams) => {
     return of({data: params.body});
   },
-  demo_cos_list: (params: HznParams) => {
+  hzn_list: (params: HznParams) => {
     let body = params.body;
     return new Observable((observer) => {
       let dirFiles;
