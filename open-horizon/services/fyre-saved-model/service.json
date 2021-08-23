@@ -12,9 +12,10 @@
     "services": {
       "$SERVICE_NAME": {
         "image": "$SERVICE_CONTAINER",
-	"binds": ["$MMS_HELPER_SHARED_VOLUME:/mms-shared:rw"],
+	"binds": ["$MMS_HELPER_SHARED_VOLUME:/mms-shared:rw", "/root/certs:/server/certs"],
         "ports": [ 
-          { "HostIP": "0.0.0.0", "HostPort": "3000:3000/tcp" }
+          { "HostIP": "0.0.0.0", "HostPort": "80:80/tcp" },
+          { "HostIP": "0.0.0.0", "HostPort": "443:443/tcp" }
         ],
         "privileged": true
       }
