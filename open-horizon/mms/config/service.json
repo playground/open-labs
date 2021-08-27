@@ -1,0 +1,26 @@
+{
+  "org": "$HZN_ORG_ID",
+  "label": "$MMS_SERVICE_NAME for $ARCH",
+  "description": "A MMS example running with node js",
+  "documentation": "https://github.com/playground/open-labs/master/edge/services/helloworld/README.md",
+  "url": "$MMS_SERVICE_NAME",
+  "version": "$MMS_SERVICE_VERSION",
+  "arch": "$ARCH",
+  "sharable": "singleton",
+  "requiredServices": [
+    {
+      "org": "$HZN_ORG_ID",
+      "url": "$YOUR_SERVICE_NAME",
+      "version": "$YOUR_SERVICE_VERSION",
+      "arch": "$ARCH"
+    }
+  ],
+  "deployment": {
+      "services": {
+          "$SERVICE_NAME": {
+              "image": "${YOUR_DOCKERHUB_ID}/_$ARCH:$MMS_SERVICE_VERSION",
+              "binds": ["$MMS_SHARED_VOLUME:/mms-shared:rw"]
+            }
+      }
+  }
+}
