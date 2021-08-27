@@ -20,6 +20,7 @@ class Env {
         exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
           if(!err) {
             pEnv.ARCH = envVars.ARCH = stdout;
+            this.setMMSContainer();
             observer.next();
             observer.complete();
           } else {
@@ -33,6 +34,10 @@ class Env {
         observer.complete();
       }    
     });
+  }
+  setMMSContainer() {
+    let container = `${pEnv.YOUR_DOCKERHUB_ID}/${pEnv.MMS_SERVICE_NAME}_${pEnv.ARCH}:${pEnv.MMS_SERVICE_VERSION}`.replace(/\r?\n|\r/g, '')
+    pEnv.MMS_CONTAINER = container;
   }
   static getEnv() {
     return env;
@@ -78,7 +83,7 @@ class Env {
     return pEnv.MMS_SERVICE_VERSION;
   }
   static getMMSContainer() {
-    return `${pEnv.YOUR_DOCKERHUB_ID}/${pEnv.MMS_SERVICE_NAME}_${pEnv.ARCH}:${pEnv.MMS_SERVICE_VERSION}`;
+    return pEnv.MMS_CONTAINER;
   }
   static getArch() {
     return pEnv.ARCH;

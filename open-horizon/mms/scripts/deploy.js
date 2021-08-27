@@ -81,7 +81,7 @@ let hzn = {
   },
   push: () => {
     return new Observable((observer) => {
-      let arg = `docker push ${Env.getMMSContainer()}`.replace(/\r?\n|\r/g, '');
+      let arg = `docker push ${Env.getMMSContainer()}`;
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
           console.log(stdout)
