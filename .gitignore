@@ -54,3 +54,4 @@ dist
 dist-old
 history*.txt
 notes/
+temp/
