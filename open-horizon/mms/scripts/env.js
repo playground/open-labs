@@ -12,7 +12,7 @@ class Env {
   static init() {
     return new Observable((observer) => {
       for(const [key, value] of Object.entries(envVars)) {
-        process.env[key] = value;
+        process.env[key] = value.replace(/\r?\n|\r/g, '');
         console.log(`${key}: ${process.env[key]}`);
       }
       if(!envVars.ARCH || envVars.ARCH === undefined) {

@@ -6,6 +6,7 @@
   "url": "$MMS_SERVICE_NAME",
   "version": "$MMS_SERVICE_VERSION",
   "arch": "$ARCH",
+  "public": true,
   "sharable": "singleton",
   "requiredServices": [
     {
