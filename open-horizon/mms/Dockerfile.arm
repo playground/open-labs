@@ -1,6 +1,6 @@
-FROM arm32v6/alpine:latest
+FROM alpine:3.10
 
-RUN apk --no-cache --update add jq curl bash nodejs npm procps
+RUN apk --no-cache --update add curl bash nodejs npm procps
 
 WORKDIR /server
 

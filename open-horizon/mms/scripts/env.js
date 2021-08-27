@@ -78,7 +78,7 @@ class Env {
     return pEnv.MMS_SERVICE_VERSION;
   }
   static getMMSContainer() {
-    return pEnv.MMS_CONTAINER;
+    return `${pEnv.YOUR_DOCKERHUB_ID}/${pEnv.MMS_SERVICE_NAME}_${pEnv.ARCH}:${pEnv.MMS_SERVICE_VERSION}`;
   }
   static getArch() {
     return pEnv.ARCH;

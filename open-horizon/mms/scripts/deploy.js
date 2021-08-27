@@ -63,8 +63,8 @@ let hzn = {
   },
   build: () => {
     return new Observable((observer) => {
-      let tag = `${Env.getDockerImageBase()}_${Env.getArch()}:${Env.getMMSServiceVersion()}`;
-      let arg = `docker build -t ${tag} -f Dockerfile.${Env.getArch()} .`.replace(/\r?\n|\r/g, '');
+      // let tag = `${Env.getDockerImageBase()}_${Env.getArch()}:${Env.getMMSServiceVersion()}`;
+      let arg = `docker build -t ${Env.getMMSContainer()} -f Dockerfile.${Env.getArch()} .`.replace(/\r?\n|\r/g, '');
       // arg = 'docker build -t playbox21/my-mms-service_amd64:1.0.0 -f Dockerfile.arm64 .' 
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
@@ -76,6 +76,22 @@ let hzn = {
         }
         observer.next();
         observer.complete();
+      });
+    })  
+  },
+  push: () => {
+    return new Observable((observer) => {
+      let arg = `docker push ${Env.getMMSContainer()} -f config/service.json`.replace(/\r?\n|\r/g, '');
+      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+        if(!err) {
+          console.log(stdout)
+          console.log(`done publishing mms service`);
+          observer.next();
+          observer.complete();
+        } else {
+          console.log('failed to publish mms service', err);
+          observer.error(err);
+        }
       });
     })  
   },

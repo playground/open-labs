@@ -18,7 +18,7 @@
   "deployment": {
       "services": {
           "$SERVICE_NAME": {
-              "image": "${YOUR_DOCKERHUB_ID}/_$ARCH:$MMS_SERVICE_VERSION",
+              "image": "${YOUR_DOCKERHUB_ID}/${MMS_SERVICE_NAME}_$ARCH:$MMS_SERVICE_VERSION",
               "binds": ["$MMS_SHARED_VOLUME:/mms-shared:rw"]
             }
       }
