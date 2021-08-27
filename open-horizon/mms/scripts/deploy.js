@@ -81,7 +81,7 @@ let hzn = {
   },
   push: () => {
     return new Observable((observer) => {
-      let arg = `docker push ${Env.getMMSContainer()} -f config/service.json`.replace(/\r?\n|\r/g, '');
+      let arg = `docker push ${Env.getMMSContainer()}`.replace(/\r?\n|\r/g, '');
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
           console.log(stdout)
@@ -158,6 +158,15 @@ let hzn = {
         }
       });
     })  
+  },
+  registerAgent: () => {
+    return new Observable((observer) => {
+      hzn.build().subscribe({
+        complete: () => {
+          // TODO
+        }
+      })
+    });
   },
   getObject: () => {
     return new Observable((observer) => {
