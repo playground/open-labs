@@ -19,7 +19,7 @@ class Env {
         let arg = `hzn architecture`
         exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
           if(!err) {
-            pEnv.ARCH = envVars.ARCH = stdout;
+            pEnv.ARCH = envVars.ARCH = stdout.replace(/\r?\n|\r/g, '');
             this.setMMSContainer();
             observer.next();
             observer.complete();

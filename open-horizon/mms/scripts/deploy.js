@@ -43,14 +43,13 @@ let hzn = {
       console.log(Env.getDockerImageBase())
       console.log(process.env.HZN_ORG_ID)
       if(!Env.getArch() || Env.getArch() === undefined) {
-        let arg = `hzn architecture`
+        let arg = `echo $HZN_ORG_ID $MMS_SERVICE_NAME $ARCH $MMS_SERVICE_NAME $MMS_SERVICE_VERSION $YOUR_SERVICE_NAME $YOUR_SERVICE_VERSION $MMS_CONTAINER $MMS_SHARED_VOLUME`
         exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
           if(!err) {
             console.log(stdout)
-            process.env.ARCH = stdout;
-            console.log(`done exporting hzn envs`);
+            console.log(`done echoing hzn envs`);
           } else {
-            console.log('failed to export hzn envs', err);
+            console.log('failed to echo hzn envs', err);
           }
           observer.next();
           observer.complete();
