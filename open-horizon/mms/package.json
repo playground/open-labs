@@ -16,6 +16,7 @@
     "agent-run": "npm run deploy --task=agentRun",
     "publish-object": "npm run deploy --task=publishObject",
     "register-agent": "npm run deploy --task=registerAgent",
+    "unregister-agent": "npm run deploy --task=unregisterAgent",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

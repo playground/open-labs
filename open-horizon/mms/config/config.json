@@ -1,3 +1,4 @@
 {
-  "hello": "from the dockerfile..."
+  "file": "<URL_TO_UPDATE_FILE>",
+  "hello": "from the Open Horizon..."
 }
