@@ -162,7 +162,34 @@ let hzn = {
     return new Observable((observer) => {
       hzn.build().subscribe({
         complete: () => {
-          // TODO
+          hzn.push().subscribe({
+            complete: () => {
+              hzn.publishService().subscribe({
+                complete: () => {
+                  hzn.publishPattern().subscribe({
+                    complet: () => {
+                      hzn.agentRun().subscribe({
+                        complete: () => {
+                          observer.next();
+                          observer.complete();
+                        }, error: (err) => {
+                          observer.error(err);
+                        }
+                      })
+                    }, error: (err) => {
+                      observer.error(err);
+                    }  
+                  })
+                }, error: (err) => {
+                  observer.error(err);
+                }
+              })
+            }, error: (err) => {
+              observer.error(err);
+            }
+          })
+        }, error: (err) => {
+          observer.error(err);
         }
       })
     });
@@ -203,10 +230,11 @@ Env.init()
       complete: () => {
         hzn[task]()
         .subscribe(() => console.log('process completed.'));
+      }, error: (err) => {
+        console.log('something went wrong. ', err);
       }
     })
-  },
-  error: (err) => {
+  }, error: (err) => {
     console.log('something went wrong. ', err);
   }  
 })
