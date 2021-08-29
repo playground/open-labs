@@ -14,8 +14,8 @@ let pEnv = process.env;
 
 class Mms {
   // The type and name of the MMS file we are using
-  objectType = `${pEnv.HZN_DEVICE_ID}.${pEnv.OBJECT_TYPE}`;
-  objectId = pEnv.OBJECT_ID;
+  objectType = `${pEnv.HZN_DEVICE_ID}.${pEnv.MMS_OBJECT_TYPE}`;
+  objectId = pEnv.MMS_OBJECT_ID;
   // ${HZN_ESS_AUTH} is mounted to this container by the Horizon agent and is a json file with the credentials for authenticating to ESS.
   // ESS (Edge Sync Service) is a proxy to MMS that runs in the Horizon agent.
   essAuth;
@@ -26,8 +26,8 @@ class Mms {
   cert = `--cacert ${pEnv.HZN_ESS_CERT}`;
   socket = `--unix-socket ${pEnv.HZN_ESS_API_ADDRESS}`;
   baseUrl = 'https://localhost/api/v1/objects';
-  sharedVolume = pEnv.SHARED_VOLUME;
-  tempFile = `.${pEnv.OBJECT_ID}`;
+  sharedVolume = pEnv.MMS_SHARED_VOLUME;
+  tempFile = `.${pEnv.MMS_OBJECT_ID}`;
   essObjectList;
   essObjectGet;
   essObjectReceived;
@@ -62,12 +62,13 @@ class Mms {
     // See if there is a new version of the config.json file
 
     try {
+      console.log('checking...')
       exec(this.essObjectList, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
           console.log(stdout)
           console.log(`done curling`);
           let config = JSON.parse(stdout);
-          console.log(config[this.objectType]);
+          // console.log(config[this.objectType]);
           if(!config.deleted) {
             exec(this.essObjectGet, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
               if(!err) {
