@@ -128,7 +128,7 @@ let hzn = {
   },
   agentRun: () => {
     return new Observable((observer) => {
-      let arg = `hzn register --policy policy.json --pattern "${Env.getMMSPatterName()}"`;
+      let arg = `hzn register --policy config/policy.json --pattern "${Env.getMMSPatterName()}"`;
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
           console.log(stdout)
