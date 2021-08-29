@@ -23,11 +23,11 @@ class Mms {
   password;
   auth;
   // ${HZN_ESS_CERT} is mounted to this container by the Horizon agent and the cert clients use to verify the identity of ESS.
-  cert = `--cacert ${pEnv.HZN_ESS_CERT}`;
-  socket = `--unix-socket ${pEnv.HZN_ESS_API_ADDRESS}`;
+  cert =  '--cacert ' + pEnv.HZN_ESS_CERT ? pEnv.HZN_ESS_CERT : '/ess-auth/cert.pem';
+  socket = '--unix-socket ' + pEnv.HZN_ESS_API_ADDRESS ? pEnv.HZN_ESS_API_ADDRESS : '/var/run/horizon/essapi.sock';
   baseUrl = 'https://localhost/api/v1/objects';
-  sharedVolume = pEnv.MMS_SHARED_VOLUME;
-  tempFile = `.${pEnv.MMS_OBJECT_ID}`;
+  sharedVolume = pEnv.MMS_VOLUME_MOUNT || '/mms-shared';
+  tempFile;
   essObjectList;
   essObjectGet;
   essObjectReceived;
@@ -35,14 +35,15 @@ class Mms {
   timout = 5000;
 
   constructor() {
-    this.essAuth = require(`.${pEnv.HZN_ESS_AUTH}`);
+    this.essAuth = require(`${pEnv.HZN_ESS_AUTH}`);
     this.user = this.essAuth.id;
     this.password = this.essAuth.token;
-    this.auth = `-u ${this.user}:${this.password}`;
+    this.auth = `${this.user}:${this.password}`;
+    this.tempFile = `.${this.objectId}`; 
 
-    this.essObjectList = `curl -sSL -u ${this.auth} ${this.cert} ${this.socker} ${this.baseUrl}/${this.objectType}`;
-    this.essObjectGet = `curl -sSL -u ${this.auth} ${this.cert} ${this.socker} ${this.baseUrl}/${this.objectType}/${this.objectType}/data -o ${this.sharedVolume}/${this.tempFile}`;
-    this.essObjectReceived = `curl -sSL -X PUT -u ${this.auth} ${this.cert} ${this.socker} ${this.baseUrl}/${this.objectType}/${this.objectType}/${this.objectId}/received`;
+    this.essObjectList = `curl -sSL -u ${this.auth} ${this.cert} ${this.socket} ${this.baseUrl}/${this.objectType}`;
+    this.essObjectGet = `curl -sSL -u ${this.auth} ${this.cert} ${this.socket} ${this.baseUrl}/${this.objectType}/${this.objectType}/data -o ${this.sharedVolume}/${this.tempFile}`;
+    this.essObjectReceived = `curl -sSL -X PUT -u ${this.auth} ${this.cert} ${this.socket} ${this.baseUrl}/${this.objectType}/${this.objectId}/received`;
     this.monitor(this.timeout);
   }
 
@@ -67,23 +68,25 @@ class Mms {
         if(!err) {
           console.log(stdout)
           console.log(`done curling`);
-          let config = JSON.parse(stdout);
-          // console.log(config[this.objectType]);
-          if(!config.deleted) {
-            exec(this.essObjectGet, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
-              if(!err) {
-                console.log('ESS object file copy was successful.');
-                exec(this.essObjectReceived, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
-                  if(!err) {
-                    console.log('ESS object received command was successful.');
-                  } else {
-                    console.log("ERROR ", err);
-                  }
-                });      
-              } else {
-                console.log("ERROR ", err);
-              }
-            });
+          if(stdout && stdout.length > 0) {
+            let config = JSON.parse(stdout);
+            // console.log(config[this.objectType]);
+            if(!config.deleted) {
+              exec(this.essObjectGet, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+                if(!err) {
+                  console.log('ESS object file copy was successful.');
+                  exec(this.essObjectReceived, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+                    if(!err) {
+                      console.log('ESS object received command was successful.');
+                    } else {
+                      console.log("ERROR ", err);
+                    }
+                  });      
+                } else {
+                  console.log("ERROR ", err);
+                }
+              });
+            }
           }
         } else {
           console.log('ERROR ', err);

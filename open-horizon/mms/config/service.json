@@ -16,11 +16,15 @@
       "arch": "$ARCH"
     }
   ],
+  "userInput": [
+    { "name": "MMS_OBJECT_TYPE", "label": "", "type": "string", "defaultValue": "$MMS_OBJECT_TYPE" },
+    { "name": "MMS_VOLUME_MOUNT", "label": "", "type": "string", "defaultValue": "$VOLUME_MOUNT" }
+  ],
   "deployment": {
     "services": {
       "$MMS_SERVICE_NAME": {
         "image": "$MMS_CONTAINER",
-        "binds": ["$MMS_SHARED_VOLUME:/mms-shared:rw"]
+        "binds": ["$MMS_SHARED_VOLUME:$VOLUME_MOUNT:rw"]
       }
     }
   }
