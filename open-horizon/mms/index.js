@@ -14,8 +14,8 @@ let pEnv = process.env;
 
 class Mms {
   // The type and name of the MMS file we are using
-  objectType = `${pEnv.HZN_DEVICE_ID}.${pEnv.MMS_OBJECT_TYPE}`;
-  objectId = pEnv.MMS_OBJECT_ID;
+  objectType = pEnv.MMS_OBJECT_TYPE;
+  objectId;
   // ${HZN_ESS_AUTH} is mounted to this container by the Horizon agent and is a json file with the credentials for authenticating to ESS.
   // ESS (Edge Sync Service) is a proxy to MMS that runs in the Horizon agent.
   essAuth;
@@ -23,8 +23,8 @@ class Mms {
   password;
   auth;
   // ${HZN_ESS_CERT} is mounted to this container by the Horizon agent and the cert clients use to verify the identity of ESS.
-  cert =  '--cacert ' + pEnv.HZN_ESS_CERT ? pEnv.HZN_ESS_CERT : '/ess-auth/cert.pem';
-  socket = '--unix-socket ' + pEnv.HZN_ESS_API_ADDRESS ? pEnv.HZN_ESS_API_ADDRESS : '/var/run/horizon/essapi.sock';
+  cert =  '--cacert ';
+  socket = '--unix-socket ';
   baseUrl = 'https://localhost/api/v1/objects';
   sharedVolume = pEnv.MMS_VOLUME_MOUNT || '/mms-shared';
   tempFile;
@@ -32,18 +32,20 @@ class Mms {
   essObjectGet;
   essObjectReceived;
   timer;
-  timout = 5000;
+  timout = 10000;
 
   constructor() {
+    this.cert += pEnv.HZN_ESS_CERT ? pEnv.HZN_ESS_CERT : '/ess-auth/cert.pem';
+    this.socket += pEnv.HZN_ESS_API_ADDRESS ? pEnv.HZN_ESS_API_ADDRESS : '/var/run/horizon/essapi.sock';
     this.essAuth = require(`${pEnv.HZN_ESS_AUTH}`);
     this.user = this.essAuth.id;
     this.password = this.essAuth.token;
     this.auth = `${this.user}:${this.password}`;
-    this.tempFile = `.${this.objectId}`; 
+    // this.tempFile = `.${this.objectId}`; 
 
     this.essObjectList = `curl -sSL -u ${this.auth} ${this.cert} ${this.socket} ${this.baseUrl}/${this.objectType}`;
-    this.essObjectGet = `curl -sSL -u ${this.auth} ${this.cert} ${this.socket} ${this.baseUrl}/${this.objectType}/${this.objectType}/data -o ${this.sharedVolume}/${this.tempFile}`;
-    this.essObjectReceived = `curl -sSL -X PUT -u ${this.auth} ${this.cert} ${this.socket} ${this.baseUrl}/${this.objectType}/${this.objectId}/received`;
+    // this.essObjectGet = `curl -sSL -u ${this.auth} ${this.cert} ${this.socket} ${this.baseUrl}/${this.objectType}/${this.objectType}/data -o ${this.sharedVolume}/${this.tempFile}`;
+    // this.essObjectReceived = `curl -sSL -X PUT -u ${this.auth} ${this.cert} ${this.socket} ${this.baseUrl}/${this.objectType}/${this.objectId}/received`;
     this.monitor(this.timeout);
   }
 
@@ -71,13 +73,24 @@ class Mms {
           if(stdout && stdout.length > 0) {
             let config = JSON.parse(stdout);
             // console.log(config[this.objectType]);
-            if(!config.deleted) {
+            if(config.length > 0 && !config[0].deleted) {
+              this.objectId = config[0].objectID;
+              this.tempFile = `.${this.objectId}`; 
+              this.essObjectGet = `curl -sSL -u ${this.auth} ${this.cert} ${this.socket} ${this.baseUrl}/${this.objectType}/${this.objectId}/data -o ${this.sharedVolume}/${this.tempFile}`;
+              this.essObjectReceived = `curl -sSL -X PUT -u ${this.auth} ${this.cert} ${this.socket} ${this.baseUrl}/${this.objectType}/${this.objectId}/received`;                
               exec(this.essObjectGet, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
                 if(!err) {
                   console.log('ESS object file copy was successful.');
                   exec(this.essObjectReceived, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
                     if(!err) {
                       console.log('ESS object received command was successful.');
+                      if(zipFile.isZipSync(`${this.sharedVolume}/${this.tempFile}`)) {                    
+                        console.log('zipped')                                                             
+                      } else {                                                                            
+                        console.log('json')                                                               
+                        let json = require(`${this.sharedVolume}/${this.tempFile}`);                      
+                        console.log(json.hello)                                                           
+                      }   
                     } else {
                       console.log("ERROR ", err);
                     }
