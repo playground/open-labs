@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+const zipFile = require('is-zip-file');
 const cp = require('child_process'),
 exec = cp.exec;
 
@@ -16,6 +17,7 @@ class Mms {
   // The type and name of the MMS file we are using
   objectType = pEnv.MMS_OBJECT_TYPE;
   objectId;
+  updateFilename = pEnv.UPDATE_FILE_NAME;
   // ${HZN_ESS_AUTH} is mounted to this container by the Horizon agent and is a json file with the credentials for authenticating to ESS.
   // ESS (Edge Sync Service) is a proxy to MMS that runs in the Horizon agent.
   essAuth;
@@ -85,7 +87,16 @@ class Mms {
                     if(!err) {
                       console.log('ESS object received command was successful.');
                       if(zipFile.isZipSync(`${this.sharedVolume}/${this.tempFile}`)) {                    
-                        console.log('zipped')                                                             
+                        console.log('zipped file has arrived...')
+                        let arg = `mv ${this.sharedVolume}/${this.tempFile} ${this.sharedVolume}/${this.updateFilename}`
+                        console.log(arg);
+                        exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+                          if(!err) {
+                            console.log(`done moving update files to shared volume`);
+                          } else {
+                            console.log('failed to move update file to shared volume', err);
+                          }
+                        });                                                                               
                       } else {                                                                            
                         console.log('json')                                                               
                         let json = require(`${this.sharedVolume}/${this.tempFile}`);                      
@@ -109,6 +120,30 @@ class Mms {
       console.log(e);
     }
     this.resetTimer();
+  }
+
+  moveFileToShare() {
+    let arg = `mv ${this.sharedVolume}/${this.tempFile} ${this.sharedVolume}/${this.updateFilename}`
+    console.log(arg);
+    exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+      if(!err) {
+        console.log(`done moving update files to shared volume`);
+      } else {
+        console.log('failed to move update file to shared volume', err);
+      }
+    });     
+  }
+
+  fetchUpdateFile(url) {
+    let arg = `mv ${this.sharedVolume}/${this.tempFile} ${this.sharedVolume}/${this.updateFilename}`
+    console.log(arg);
+    exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+      if(!err) {
+        console.log(`done moving update files to shared volume`);
+      } else {
+        console.log('failed to move update file to shared volume', err);
+      }
+    });     
   }
 }
 
