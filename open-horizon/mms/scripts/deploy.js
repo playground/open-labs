@@ -177,7 +177,7 @@ let hzn = {
   registerAgent: () => {
     return new Observable((observer) => {
       hzn.unregisterAgent().subscribe({
-        complet: () => {
+        complete: () => {
           hzn.build().subscribe({
             complete: () => {
               hzn.push().subscribe({
