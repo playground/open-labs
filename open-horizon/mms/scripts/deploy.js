@@ -158,27 +158,49 @@ let hzn = {
       });
     })  
   },
+  unregisterAgent: () => {
+    return new Observable((observer) => {
+      let arg = `hzn unregister -f`;
+      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+        if(!err) {
+          console.log(stdout)
+          console.log(`done unregistering mss agent`);
+          observer.next();
+          observer.complete();
+        } else {
+          console.log('failed to unregister mms agent', err);
+          observer.error(err);
+        }
+      });
+    })  
+  },
   registerAgent: () => {
     return new Observable((observer) => {
-      hzn.build().subscribe({
-        complete: () => {
-          hzn.push().subscribe({
+      hzn.unregisterAgent().subscribe({
+        complet: () => {
+          hzn.build().subscribe({
             complete: () => {
-              hzn.publishService().subscribe({
+              hzn.push().subscribe({
                 complete: () => {
-                  hzn.publishPattern().subscribe({
-                    complet: () => {
-                      hzn.agentRun().subscribe({
-                        complete: () => {
-                          observer.next();
-                          observer.complete();
+                  hzn.publishService().subscribe({
+                    complete: () => {
+                      hzn.publishPattern().subscribe({
+                        complet: () => {
+                          hzn.agentRun().subscribe({
+                            complete: () => {
+                              observer.next();
+                              observer.complete();
+                            }, error: (err) => {
+                              observer.error(err);
+                            }
+                          })
                         }, error: (err) => {
                           observer.error(err);
-                        }
+                        }  
                       })
                     }, error: (err) => {
                       observer.error(err);
-                    }  
+                    }
                   })
                 }, error: (err) => {
                   observer.error(err);
@@ -186,11 +208,11 @@ let hzn = {
               })
             }, error: (err) => {
               observer.error(err);
-            }
+            }    
           })
         }, error: (err) => {
           observer.error(err);
-        }
+        }    
       })
     });
   },
