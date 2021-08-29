@@ -1,0 +1,45 @@
+{
+  "name": "mms",
+  "version": "1.0.0",
+  "description": "Model Management System",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "start": "node node-mon.js",
+    "deploy": "scripts/deploy.js",
+    "build": "npm run deploy --task=build",
+    "push": "npm run deploy --task=push",
+    "publish-service": "npm run deploy --task=publishService",
+    "publish-pattern": "npm run deploy --task=publishPattern",
+    "agent-run": "npm run deploy --task=agentRun",
+    "publish-object": "npm run deploy --task=publishObject",
+    "register-agent": "npm run deploy --task=registerAgent",
+    "unregister-agent": "npm run deploy --task=unregisterAgent",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/playground/open-labs/mms"
+  },
+  "keywords": [
+    "IEAM",
+    "Open",
+    "Horizon",
+    "edge",
+    "computing",
+    "MMS",
+    "Model",
+    "Management",
+    "Service"
+  ],
+  "author": "ljeff@us.ibm.com",
+  "license": "ISC",
+  "dependencies": {
+    "find-process": "^1.4.4",
+    "is-zip-file": "^1.0.2",
+    "jsonfile": "^6.1.0",
+    "rxjs": "^7.1.0"
+  }
+}

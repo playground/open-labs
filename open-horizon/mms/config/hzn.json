@@ -1,0 +1,12 @@
+{
+  "HZN_ORG_ID": "biz",
+  "MetadataVars": {
+    "DOCKER_IMAGE_BASE": "playbox21/my-mms-service",
+    "MMS_SERVICE_NAME": "my-mms-service",
+    "MMS_SERVICE_VERSION": "1.0.0",
+    "OBJECT_TYPE": "object_detection",
+    "OBJECT_ID": "config.json",
+    "SHARED_VOLUME": "/shared_dir",
+    "YOUR_SERVICE_NAME": "pi"
+  }
+}

@@ -3,12 +3,7 @@
     { 
       "name": "openhorizon.allowPrivileged",
       "value": true
-    },
-    {
-      "name": "openhorizon.hardwareId",
-      "value": "cb086185-fe82-4318-ae99-9a65f02983d6"
     }
   ],
   "constraints": [ ]
 }
-
