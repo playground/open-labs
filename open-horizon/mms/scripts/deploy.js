@@ -81,6 +81,7 @@ let hzn = {
   push: () => {
     return new Observable((observer) => {
       let arg = `docker push ${Env.getMMSContainer()}`;
+      console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
           console.log(stdout)
@@ -97,6 +98,7 @@ let hzn = {
   publishService: () => {
     return new Observable((observer) => {
       let arg = `hzn exchange service publish -O ${Env.getMMSContainerCreds()} -f config/service.json`;
+      console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
           console.log(stdout)
@@ -113,6 +115,7 @@ let hzn = {
   publishPattern: () => {
     return new Observable((observer) => {
       let arg = `hzn exchange pattern publish -f config/pattern.json`;
+      console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
           console.log(stdout)
@@ -129,6 +132,7 @@ let hzn = {
   agentRun: () => {
     return new Observable((observer) => {
       let arg = `hzn register --policy config/policy.json --pattern "${Env.getMMSPatterName()}"`;
+      console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
           console.log(stdout)
@@ -145,6 +149,7 @@ let hzn = {
   publishObject: () => {
     return new Observable((observer) => {
       let arg = `hzn mms object publish --type=${objectType} --id=${objectId} --object=${objectFIle} --pattern=${Env.getMMSPatterName()}`
+      console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
           console.log(stdout)
@@ -161,6 +166,7 @@ let hzn = {
   unregisterAgent: () => {
     return new Observable((observer) => {
       let arg = `hzn unregister -f`;
+      console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
           console.log(stdout)
@@ -185,7 +191,7 @@ let hzn = {
                   hzn.publishService().subscribe({
                     complete: () => {
                       hzn.publishPattern().subscribe({
-                        complet: () => {
+                        complete: () => {
                           hzn.agentRun().subscribe({
                             complete: () => {
                               observer.next();
