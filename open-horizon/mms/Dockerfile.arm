@@ -1,6 +1,6 @@
 FROM alpine:3.10
 
-RUN apk --no-cache --update add curl bash nodejs npm procps
+RUN apk --no-cache --update add curl bash nodejs-current npm procps
 
 WORKDIR /server
 
