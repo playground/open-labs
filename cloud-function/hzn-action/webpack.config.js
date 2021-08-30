@@ -38,26 +38,6 @@ module.exports = {
   },
   plugins: [
     new CopyPlugin([
-      {
-        from: 'dist/common/src/cos-client/cos-client.js',
-        to: '../js/cos-client.js',
-        toType: 'file',
-      },
-      {
-        from: 'dist/common/src/utility.js',
-        to: '../js/utility.js',
-        toType: 'file',
-      },
-      {
-        from: 'dist/common/src/messenger.js',
-        to: '../js/messenger.js',
-        toType: 'file',
-      },
-      {
-        from: 'dist/hzn-action/src/hzn-action.js',
-        to: '../index.js',
-        toType: 'file',
-      }
     ])
   ],
   resolve: {

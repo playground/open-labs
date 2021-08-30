@@ -21,7 +21,7 @@ export class CosClient {
       serviceInstanceId: params.serviceInstanceId,
       region: params.region
     }
-    console.log('$$$config', config)
+    // console.log('$$$config', config)
     this.client = new COS.S3(config);
   }
   ls(bucket, directory, delimiter = null)  {
@@ -329,10 +329,14 @@ export class CosClient {
         Expires: params.expires ? params.expires : 900
       };
       try {
+        let url = '';
         from(this.client.getSignedUrl('getObject', config))
-        .subscribe((url) => {
-          observer.next({url: url});
-          observer.complete();
+        .subscribe({
+          next: (chunk) => url += chunk,
+          complete: () => {
+            observer.next({url: url});
+            observer.complete();  
+          }
         })
       } catch (err) {
         console.log(err);
