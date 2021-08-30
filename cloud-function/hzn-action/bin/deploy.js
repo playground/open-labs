@@ -36,7 +36,7 @@ let build = {
   },
   deploy: () => {
     build.getEnvVar();
-    let arg = `ibmcloud fn action update ${package}/hzn-action dist/hzn-action.js --memory 2048 --timeout 90000 --docker playbox21/hzn-action:1.0.0 `;
+    let arg = `ibmcloud fn action update ${package}/hzn-action --memory 2048 --timeout 20000 --docker playbox21/hzn-action:1.0.0 `;
     arg += ` --param bucket ${process.env.BUCKET} --param accessKeyId ${process.env.ACCESSKEYID}`;
     arg += ` --param secretAccessKey ${process.env.SECRETACCESSKEY} --param endpoint ${process.env.COS_ENDPOINT}`;
     arg += ` --param ibmAuthEndpoint ${process.env.COS_IBMAUTHENDPOINT} --param region ${process.env.REGION}`;
@@ -45,9 +45,9 @@ let build = {
     exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
       if(!err) {
         console.log(stdout)
-        console.log(`done add/update ${package}/demo-action`);
+        console.log(`done add/update ${package}/hzn-action`);
       } else {
-        console.log('failed to add/update demo-action', err);
+        console.log('failed to add/update hzn-action', err);
       }
     });
   },
