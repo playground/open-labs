@@ -126,17 +126,19 @@ class Mms {
         let writableStream = createWriteStream(src);                                                           
         const startTime = Date.now();
     
+        writableStream.on('close', async () => {
+          const endTime = Date.now();
+          console.log(`Time took to download file: ${endTime - startTime}`)
+          await this.moveFileToShare(src, dest);
+          resolve();
+        });
         https.get(url, (resp) => {
-          pipeline(resp, writableStream, async(err) => {
+          pipeline(resp, writableStream, (err) => {
             if(!err) {
-              await this.moveFileToShare(src, dest);
             } else {
               console.log(err);
               unlinkSync(tempFile)
             }
-            const endTime = Date.now();
-            console.log(`Time took to download file: ${endTime - startTime}`)
-              resolve();
           })
         });  
       } catch(e) {
