@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 const https = require('https');
-const { createWriteStream, unlinkSync } = require('fs');
+const { createWriteStream, unlinkSync, existsSync, readFileSync } = require('fs');
 const { pipeline } = require('stream');
 const zipFile = require('is-zip-file');
 const cp = require('child_process'),
@@ -93,8 +93,8 @@ class Mms {
                         console.log('zipped file has arrived...')
                         await this.moveFileToShare(`${this.sharedVolume}/${this.tempFile}`, `${this.sharedVolume}/${this.updateFilename}`);
                       } else {                                                                            
-                        console.log('json')                                                               
-                        let json = require(`${this.sharedVolume}/${this.tempFile}`);                      
+                        console.log('json')
+                        let json = JSON.parse(readFileSync(`${this.sharedVolume}/${this.tempFile}`));                                                               
                         console.log(json.hello)
                         if(json.url) {
                           await this.writeFileToShare(json.url, `${this.sharedVolume}/${this.tempFile}`, `${this.sharedVolume}/${this.updateFilename}`);
@@ -120,16 +120,26 @@ class Mms {
     this.resetTimer();
   }
 
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
   writeFileToShare(url, src, dest) {
     return new Promise((resolve, reject) => {
       try {
         let writableStream = createWriteStream(src);                                                           
         const startTime = Date.now();
     
-        writableStream.on('finish', async () => {
+        writableStream.on('close', async () => {
+          let cnt = 0;
           const endTime = Date.now();
           console.log(`Time took to download file: ${endTime - startTime}`)
-          await this.moveFileToShare(src, dest);
+          do {  // wait maximum 3 seconds for file to close
+            this.sleep(1000);
+          } while(!existsSync(src) && cnt++ < 3);
+          if(existsSync(src)) {
+            await this.moveFileToShare(src, dest);
+          }
           resolve();
         });
         https.get(url, (resp) => {
