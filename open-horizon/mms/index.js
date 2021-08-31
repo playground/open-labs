@@ -96,7 +96,9 @@ class Mms {
                         console.log('json')                                                               
                         let json = require(`${this.sharedVolume}/${this.tempFile}`);                      
                         console.log(json.hello)
-                        await this.writeFileToShare(json.url, `${this.sharedVolume}/${this.tempFile}`, `${this.sharedVolume}/${this.updateFilename}`);
+                        if(json.url) {
+                          await this.writeFileToShare(json.url, `${this.sharedVolume}/${this.tempFile}`, `${this.sharedVolume}/${this.updateFilename}`);
+                        }
                       }   
                     } else {
                       console.log("ERROR ", err);
@@ -120,40 +122,50 @@ class Mms {
 
   writeFileToShare(url, src, dest) {
     return new Promise((resolve, reject) => {
-      let writableStream = createWriteStream(src);                                                           
-      const startTime = Date.now();
-  
-      https.get(url, async(resp) => {
-        pipeline(resp, writableStream, (err) => {
-          if(!err) {
-            await this.moveFileToShare(src, dest);
-          } else {
-            console.log(err);
-            unlinkSync(tempFile)
-          }
-          const endTime = Date.now();
-          console.log(`Elapsed time: ${endTime - startTime}`)
-            resolve();
-        })
-      });  
+      try {
+        let writableStream = createWriteStream(src);                                                           
+        const startTime = Date.now();
+    
+        https.get(url, (resp) => {
+          pipeline(resp, writableStream, async(err) => {
+            if(!err) {
+              await this.moveFileToShare(src, dest);
+            } else {
+              console.log(err);
+              unlinkSync(tempFile)
+            }
+            const endTime = Date.now();
+            console.log(`Time took to download file: ${endTime - startTime}`)
+              resolve();
+          })
+        });  
+      } catch(e) {
+        console.log(e);
+        resolve();
+      }
     })
   }
 
   moveFileToShare(src, dest) {
     return new Promise((resolve, reject) => {
-      let arg = `mv ${src} ${dest}`
-      console.log(arg);
-      const startTime = Date.now();
-      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
-        if(!err) {
-          console.log(`done moving update files to shared volume`);
-        } else {
-          console.log('failed to move update file to shared volume', err);
-        }
-        const endTime = Date.now();
-        console.log(`Elapsed time: ${endTime - startTime}`)
+      try {
+        let arg = `mv ${src} ${dest}`
+        console.log(arg);
+        const startTime = Date.now();
+        exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+          if(!err) {
+            console.log(`done moving update files to shared volume`);
+          } else {
+            console.log('failed to move update file to shared volume', err);
+          }
+          const endTime = Date.now();
+          console.log(`Time took to write file: ${endTime - startTime}`)
+          resolve();
+        });       
+      } catch(e) {
+        console.log(e)
         resolve();
-      });     
+      }
     });
   }
 
