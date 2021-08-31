@@ -326,13 +326,14 @@ export class CosClient {
       let config = {
         Bucket: params.bucket,
         Key: params.filename,
-        Expires: params.expires ? params.expires : 900
+        Expires: params.expires ? parseInt(params.expires) : 900
       };
       try {
         let url = '';
         from(this.client.getSignedUrl('getObject', config))
         .subscribe({
           next: (chunk) => url += chunk,
+          error: (err) => observer.error(err),
           complete: () => {
             observer.next({url: url});
             observer.complete();  
@@ -340,9 +341,7 @@ export class CosClient {
         })
       } catch (err) {
         console.log(err);
-        observer.next({result: `unable to generate signed url: ${err}`});
-        observer.complete();
-
+        observer.error(`unable to generate signed url: ${err}`);
       }
     });
   }

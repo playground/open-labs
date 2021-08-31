@@ -6,6 +6,7 @@ import { CosClient } from '@common/cos-client';
 import { mkdirSync, readdir, readFileSync, writeFileSync, stat, existsSync } from 'fs';
 import path = require('path');
 import  * as https from 'https';
+import { maxHeaderSize } from 'http';
 const cp = require('child_process'),
 exec = cp.exec;
 
@@ -22,7 +23,7 @@ export default function main(params: HznParams) {
     }, (err) => {
       console.log(err);
       const response = new Messenger(params);
-      resolve(response.error('something went wrong...', 400));
+      resolve(response.error(`something went wrong...${err}`, 400));
     }, () => {
       const response = new Messenger(params);
       resolve(response.send(result));
@@ -65,11 +66,41 @@ let action = {
   hzn_obj_url: (params: HznParams) => {
     return new Observable((observer) => {
       cosClient.getSignedUrl(params)
-      .subscribe((res) => {
-        observer.next(res);
-        observer.complete();
+      .subscribe({
+        error: (err) => observer.error(err),
+        next: (res) => {
+          observer.next(res);
+          observer.complete();
+        }
       })
     });
+  },
+  hzn_mms_url: (params: HznParams) => {
+    return new Observable((observer) => {
+      action.hzn_obj_url(params)
+      .subscribe({
+        next: (res: HznParams) => {
+          let config = {
+            hello: 'MMS delivery',
+            url: res.url
+          }
+          let filename = params.filename || 'config.json'
+          writeFileSync(filename, JSON.stringify(config));
+          let arg = `/usr/bin/hzn mms object publish --type=${params.type} --id=${params.id} --object=${filename} --pattern=${params.pattern}`;
+          exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+            if(!err) {
+              console.log(`${arg}`);
+              observer.next();
+              observer.complete();
+            } else {
+              console.log(`failed mms publish...${err}`);
+              observer.error(err);
+            }
+          });    
+        },
+        error: (err) => observer.error(err)
+      })
+    });  
   },
   hzn_mms_file: (params: HznParams) => {
     return new Observable((observer) => {

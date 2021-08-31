@@ -32,6 +32,10 @@ packages:
             hzn-action:
               method: GET
               response: json
+          hzn_mms_url:
+            hzn-action:
+              method: GET
+              response: json
           hzn_list:
             hzn-action:
               method: POST
