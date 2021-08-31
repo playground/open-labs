@@ -1,4 +1,4 @@
 {
-  "url": "OBJECT_FILE_URL",
+  "url": "https://weather-labs.s3-api.us-geo.objectstorage.softlayer.net/models/version_2.0/model.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cbee834cb0994751862d9cfd5c096c6f%2F20210831%2Fus-geo%2Fs3%2Faws4_request&X-Amz-Date=20210831T181228Z&X-Amz-Expires=900&X-Amz-Signature=e33dd85ef20f1bd52740a17dc11c67949e34eaff81eb598e394a839184fc77e6&X-Amz-SignedHeaders=host",
   "hello": "from the Open Horizon..."
 }

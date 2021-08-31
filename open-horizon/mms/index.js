@@ -126,7 +126,7 @@ class Mms {
         let writableStream = createWriteStream(src);                                                           
         const startTime = Date.now();
     
-        writableStream.on('close', async () => {
+        writableStream.on('finish', async () => {
           const endTime = Date.now();
           console.log(`Time took to download file: ${endTime - startTime}`)
           await this.moveFileToShare(src, dest);
