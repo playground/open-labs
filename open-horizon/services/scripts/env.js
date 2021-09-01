@@ -37,8 +37,8 @@ class Env {
     });
   }
   static setAdditionalEnv() {
-    pEnv.PATTERN_NAME = `pattern-${pEnv.SERVICE_NAME}-${pEnv.ARCH}`;
-    pEnv.SERVICE_CONTAINER = `${pEnv.YOUR_DOCKERHUB_ID}/${pEnv.SERVICE_NAME}_${pEnv.ARCH}:${pEnv.SERVICE_VERSION}`.replace(/\r?\n|\r/g, '')
+    pEnv.PATTERN_NAME = `pattern-${pEnv.SERVICE_NAME}`;
+    pEnv.SERVICE_CONTAINER = `${pEnv.YOUR_DOCKERHUB_ID}/${pEnv.SERVICE_NAME}:${pEnv.SERVICE_VERSION}`.replace(/\r?\n|\r/g, '')
   }
   static getEnv() {
     return env;
