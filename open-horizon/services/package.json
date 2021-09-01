@@ -7,6 +7,8 @@
     "deploy": "scripts/deploy.js",
     "publish-service": "npm run deploy --task=publishService",
     "publish-pattern": "npm run deploy --task=publishPattern",
+    "show-horizon-info": "npm run deploy --task=showHorizonInfo",
+    "update-horizon-info": "npm run deploy --task=updateHorizonInfo",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
