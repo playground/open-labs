@@ -17,6 +17,8 @@
     "publish-object": "npm run deploy --task=publishObject",
     "register-agent": "npm run deploy --task=registerAgent",
     "unregister-agent": "npm run deploy --task=unregisterAgent",
+    "show-horizon-info": "npm run deploy --task=showHorizonInfo",
+    "update-horizon-info": "npm run deploy --task=updateHorizonInfo",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -40,6 +42,7 @@
     "find-process": "^1.4.4",
     "is-zip-file": "^1.0.2",
     "jsonfile": "^6.1.0",
+    "prompt": "^1.2.0",
     "rxjs": "^7.1.0"
   }
 }

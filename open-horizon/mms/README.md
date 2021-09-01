@@ -41,3 +41,5 @@ The deploy.js script will perform the following tasks:
 ## npm run unregister-agent
 - Unregisgers agent
 
+## Publish new/update model
+- hzn mms object publish --type=object_detection --id=config.json --object=/demo-model/demo/version1/model.zip --pattern=pattern-pi-mms-service-arm

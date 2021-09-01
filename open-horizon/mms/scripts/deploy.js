@@ -2,8 +2,9 @@
 const { Observable, forkJoin } = require('rxjs');
 const cp = require('child_process'),
 exec = cp.exec;
-const fs = require('fs');
+const { readFileSync, writeFileSync } = require('fs');
 const { Env } = require('./env') ;
+const prompt = require('prompt');
 
 const task = process.env.npm_config_task || 'build';
 let objectType;
@@ -222,6 +223,70 @@ let hzn = {
       })
     });
   },
+  showHorizonInfo: () => {
+    return new Observable((observer) => {
+      const file = hzn.getHorizonInfo();
+      console.log(file)
+      observer.next(file);
+      observer.complete();
+    })  
+  },
+  getHorizonInfo: () => {
+    return readFileSync('/etc/default/horizon').toString().split('\n');
+  },
+  updateHorizonInfo: () => {
+    return new Observable((observer) => {
+      let data = hzn.getHorizonInfo();
+      let props = [];
+      data.forEach((el, i) => {
+        if(el.length > 0) {
+          let prop = el.split('=');
+          if(prop && prop.length > 0) {
+            props[i] = {name: prop[0], default: prop[1], required: true};
+          }  
+        }
+      });
+      console.log('\nKey in new value or press Enter to keep current value: ')
+      prompt.get(props, (err, result) => {
+        console.log(result)
+
+        console.log('\nWould like to update horizon: Y/n?')
+        prompt.get({name: 'answer', required: true}, (err, question) => {
+          if(question.answer === 'Y') {
+            let content = '';
+            for(const [key, value] of Object.entries(result)) {
+              content += `${key}=${value}\n`; 
+            }
+            hzn.copyFile('sudo cp /etc/default/horizon /etc/default/.horizon').then(() => {
+              writeFileSync('.horizon', content);
+              hzn.copyFile(`sudo mv .horizon /etc/default/horizon`).then(() => {
+                observer.next();
+                observer.complete();  
+              })
+            })
+          }
+        })
+      })
+    })  
+  },
+  copyFile: (arg) => {
+    return new Promise((resolve, reject) => {
+      try {
+        console.log(arg);
+        exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+          if(!err) {
+            console.log(`done moving file`);
+          } else {
+            console.log('failed to move file', err);
+          }
+          resolve();
+        });       
+      } catch(e) {
+        console.log(e)
+        resolve();
+      }
+    });
+  },
   getObject: () => {
     return new Observable((observer) => {
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
@@ -257,7 +322,10 @@ Env.init()
     .subscribe({
       complete: () => {
         hzn[task]()
-        .subscribe(() => console.log('process completed.'));
+        .subscribe(() => {
+          console.log('process completed.');
+          process.exit(0)
+        })  
       }, error: (err) => {
         console.log('something went wrong. ', err);
       }
