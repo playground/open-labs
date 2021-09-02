@@ -1,5 +1,7 @@
 #! /usr/bin/env node
 const { Observable } = require('rxjs');
+const cp = require('child_process'),
+exec = cp.exec;
 
 const env = process.env.npm_config_env || 'biz';
 
@@ -16,7 +18,6 @@ class Utils {
     return new Observable((observer) => {
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
-          pEnv.ARCH = envVars.ARCH = stdout.replace(/\r?\n|\r/g, '');
           observer.next(stdout);
           observer.complete();
         } else {
