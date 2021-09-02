@@ -291,7 +291,7 @@ let hzn = {
     return new Observable((observer) => {
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
-          pEnv.ARCH = envVars.ARCH = stdout.replace(/\r?\n|\r/g, '');
+          console.log(stdout);
           observer.next(stdout);
           observer.complete();
         } else {
