@@ -4,7 +4,7 @@ const cp = require('child_process'),
 exec = cp.exec;
 const { readFileSync, writeFileSync } = require('fs');
 const { Env } = require('./env') ;
-const { Utils } = require('./common/utils');
+const { Utils } = require('./utils');
 const prompt = require('prompt');
 
 const task = process.env.npm_config_task || 'build';

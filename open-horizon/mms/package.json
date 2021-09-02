@@ -19,6 +19,8 @@
     "unregister-agent": "npm run deploy --task=unregisterAgent",
     "show-horizon-info": "npm run deploy --task=showHorizonInfo",
     "update-horizon-info": "npm run deploy --task=updateHorizonInfo",
+    "list-service": "npm run deploy --task=listService",
+    "list-pattern": "npm run deploy --task=listPattern",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
