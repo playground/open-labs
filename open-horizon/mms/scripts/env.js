@@ -90,13 +90,13 @@ class Env {
     return pEnv.ARCH;
   }
   static getMMSObjectType() {
-    return metaVars.MMS_OBJECT_TYPE;
+    return pEnv.MMS_OBJECT_TYPE;
   }
   static getMMSObjectId() {
-    return metaVars.MMS_OBJECT_ID
+    return pEnv.MMS_OBJECT_ID
   }
   static getMMSObjectFile() {
-    return metaVars.MMS_OBJECT_FILE
+    return pEnv.MMS_OBJECT_FILE
   }
 }
 

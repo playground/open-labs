@@ -17,7 +17,7 @@ let hzn = {
       objectType = process.env.npm_config_type || Env.getMMSObjectType();
       objectId = process.env.npm_config_id || Env.getMMSObjectId();
       objectFIle = process.env.npm_config_object || Env.getMMSObjectFile();
-
+      pattern = process.env.npm_config_pattern || Env.getMMSPatterName();
       observer.complete();
     });  
   },
@@ -132,7 +132,7 @@ let hzn = {
   },
   agentRun: () => {
     return new Observable((observer) => {
-      let arg = `hzn register --policy config/policy.json --pattern "${Env.getMMSPatterName()}"`;
+      let arg = `hzn register --policy config/policy.json --pattern "${pattern}"`;
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
@@ -149,16 +149,16 @@ let hzn = {
   },
   publishObject: () => {
     return new Observable((observer) => {
-      let arg = `hzn mms object publish --type=${objectType} --id=${objectId} --object=${objectFIle} --pattern=${Env.getMMSPatterName()}`
+      let arg = `hzn mms object publish --type=${objectType} --id=${objectId} --object=${objectFIle} --pattern=${pattern}`
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
           console.log(stdout)
-          console.log(`done registering mss agent`);
+          console.log(`done publishing object`);
           observer.next();
           observer.complete();
         } else {
-          console.log('failed to register mms agent', err);
+          console.log('failed to publish object', err);
           observer.error(err);
         }
       });
