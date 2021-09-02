@@ -4,6 +4,7 @@ const cp = require('child_process'),
 exec = cp.exec;
 const { readFileSync, writeFileSync } = require('fs');
 const { Env } = require('./env') ;
+import { Utils } from '../../common/utils';
 const prompt = require('prompt');
 
 const task = process.env.npm_config_task || 'build';
@@ -287,31 +288,13 @@ let hzn = {
       }
     });
   },
-  getObject: () => {
-    return new Observable((observer) => {
-      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
-        if(!err) {
-          console.log(stdout)
-          console.log(`done deploying`);
-        } else {
-          console.log('failed to deploy', err);
-        }
-      });
-      observer.next();
-      observer.complete();
-    })  
+  listService: () => {
+    let service = process.env.npm_config_service || '';
+    return Utils.listService(service);
   },
-  getESSObjectList: () =>{
-    const arg = 'curl -sSL -u %s:%s --cacert %s --unix-socket %s https://localhost/api/v1/objects/%s';
-    console.log('getting ESS Object list...')
-    exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
-      if(!err) {
-        console.log(stdout)
-        console.log(`done deploying`);
-      } else {
-        console.log('failed to deploy', err);
-      }
-    });
+  listPattern: () => {
+    let pattern = process.env.npm_config_pattern || '';
+    return Utils.listService(pattern);
   }
 }
 
