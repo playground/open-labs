@@ -4,7 +4,6 @@ const cp = require('child_process'),
 exec = cp.exec;
 const { readFileSync, writeFileSync } = require('fs');
 const { Env } = require('./env') ;
-const { Utils } = require('./utils');
 const prompt = require('prompt');
 
 const task = process.env.npm_config_task || 'build';
@@ -288,13 +287,29 @@ let hzn = {
       }
     });
   },
+  shell: (arg) => {
+    return new Observable((observer) => {
+      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+        if(!err) {
+          pEnv.ARCH = envVars.ARCH = stdout.replace(/\r?\n|\r/g, '');
+          observer.next(stdout);
+          observer.complete();
+        } else {
+          console.log(`shell command failed: ${err}`);
+          observer.error(err);
+        }
+      });  
+    });
+  },
   listService: () => {
-    let service = process.env.npm_config_service || '';
-    return Utils.listService(service);
+    let service = process.env.npm_config_service;
+    service = service ? `hzn exchange service list ${service}` : 'hzn exchange service list';
+    return hzn.shell(service);
   },
   listPattern: () => {
-    let pattern = process.env.npm_config_pattern || '';
-    return Utils.listService(pattern);
+    let pattern = process.env.npm_config_pattern;
+    pattern = pattern ? `hzn exchange pattern list ${pattern}` : 'hzn exchange pattern list';
+    return hzn.shell(pattern);
   }
 }
 
