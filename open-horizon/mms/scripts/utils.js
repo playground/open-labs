@@ -12,7 +12,7 @@ class Utils {
   static listPattern(pattern) {
     return this.shell(`hzn exchange pattern list` + patterrn ? ` ${pattern}` : '');
   }
-  shell(arg) {
+  static shell(arg) {
     return new Observable((observer) => {
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
