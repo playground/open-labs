@@ -4,7 +4,7 @@ const cp = require('child_process'),
 exec = cp.exec;
 const { readFileSync, writeFileSync } = require('fs');
 const { Env } = require('./env') ;
-import { Utils } from '../../common/utils';
+const { Utils } require('../../common/utils');
 const prompt = require('prompt');
 
 const task = process.env.npm_config_task || 'build';
@@ -17,7 +17,7 @@ let hzn = {
     return new Observable((observer) => {
       objectType = process.env.npm_config_type || Env.getMMSObjectType();
       objectId = process.env.npm_config_id || Env.getMMSObjectId();
-      objectFIle = process.env.npm_config_object || Env.getMMSObjectFile();
+      objectFile = process.env.npm_config_object || Env.getMMSObjectFile();
       pattern = process.env.npm_config_pattern || Env.getMMSPatterName();
       observer.complete();
     });  
@@ -150,7 +150,7 @@ let hzn = {
   },
   publishObject: () => {
     return new Observable((observer) => {
-      let arg = `hzn mms object publish --type=${objectType} --id=${objectId} --object=${objectFIle} --pattern=${pattern}`
+      let arg = `hzn mms object publish --type=${objectType} --id=${objectId} --object=${objectFile} --pattern=${pattern}`
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {

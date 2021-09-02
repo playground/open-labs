@@ -29,5 +29,4 @@ class Utils {
   }
 }
 
-const _Utils = Utils;
-export { _Utils as Utils };
+module.exports.Utils = Utils;
