@@ -10,5 +10,5 @@ https://github.com/playground/tfjs-object-detection/tree/main/saved-model-servic
 ### HZN Toolkit for Model Management System (MMS) & Service Deployment for IEAM/Open Horizon Agent
 https://github.com/playground/open-labs/tree/main/open-horizon
 
-### ibm Cloud Fuctions
+### IBM Cloud Fuctions
 https://github.com/playground/open-labs/tree/main/cloud-function
