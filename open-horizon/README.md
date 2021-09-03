@@ -7,7 +7,7 @@ Build-bundle will generate two executables under lib directory
 
 ***For now, to try out this toolkit, clone https://github.com/playground/open-lab, cd into open-horizon, run any of the following commands.
 
-### Note:  Make a copy of env-hzn.json and name it as .env-hzn.json on your local machine and fill in all the required values in the .env-hzn.json file
+### Note:  Make a copy of env-hzn.json and name it as .env-hzn.json on your local machine and fill in all the required values in the .env-hzn.json file for each organization
 
 ### This toolkit comes with the following convenient commnands 
 
