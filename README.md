@@ -7,7 +7,7 @@ https://github.com/playground/tfjs-pipeline
 ### Edge Computing with IEAM/Open Horizon
 https://github.com/playground/tfjs-object-detection/tree/main/saved-model-service
 
-### Model Management System (MMS) & Service Deployment for IEAM/Open Horizon Agent
+### HZN Toolkit for Model Management System (MMS) & Service Deployment for IEAM/Open Horizon Agent
 https://github.com/playground/open-labs/tree/main/open-horizon
 
 ### ibm Cloud Fuctions
