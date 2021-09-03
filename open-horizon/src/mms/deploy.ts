@@ -102,7 +102,7 @@ let hzn = {
   },
   agentRun: () => {
     return new Observable((observer) => {
-      let arg = `hzn register --policy config/policy.json --pattern "${pattern}"`;
+      let arg = `hzn register --policy config/mms/policy.json --pattern "${pattern}"`;
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
