@@ -34,31 +34,31 @@ Build-bundle will generate two executables under lib directory
 ### Note:  Make a copy of env-hzn.json and name it as .env-hzn.json on your local machine and fill in all the required values in the .env-hzn.json file
 
 
-# NPM command examples
+## NPM command examples
 
-## npm run list-deployment-policy --env=demo --name=demo/policy-ibm.cpu2evtstreams_1.4.3
+### npm run list-deployment-policy --env=demo --name=demo/policy-ibm.cpu2evtstreams_1.4.3
 - To list deployment policy by name and by organization
 
-## npm run register-agent
+### npm run register-agent
 - Will perform all of the following commands
 
-## npm run builld
+### npm run builld
 - Builds the docker image
 
-## npm run push
+### npm run push
 - Pushes the docker image to Docker Hub
 
-## npm run publish-service
+### npm run publish-service
 - Publishes MMS Service 
 
-## npm run publish-pattern
+### npm run publish-pattern
 - Publishes MMS Pattern
 
-## npm run agent-run
+### npm run agent-run
 - Registers agent with Management Hub 
 
-## npm run unregister-agent
+### npm run unregister-agent
 - Unregisgers agent
 
-## Publish new/update model
+### Publish new/update model
 - hzn mms object publish --type=object_detection --id=config.json --object=/demo-model/demo/version1/model.zip --pattern=pattern-pi-mms-service-arm
