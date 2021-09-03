@@ -4,7 +4,6 @@
   "description": "Open Horizon toolkit help streamline the process of preparing node agents and perform tasks between orgs environments",
   "main": "index.js",
   "scripts": {
-    "start": "node node-mon.js",
     "build": "npm run tsc",
     "tsc": "tsc",
     "bundle": "webpack --config webpack.config.js && chmod +x lib/*.js",
