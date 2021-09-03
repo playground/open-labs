@@ -68,7 +68,7 @@ let hzn = {
   },
   publishService: () => {
     return new Observable((observer) => {
-      let arg = `hzn exchange service publish -O ${envVar.getMMSContainerCreds()} -f config/service.json`;
+      let arg = `hzn exchange service publish -O ${envVar.getMMSContainerCreds()} -f config/mms/service.json`;
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
@@ -85,7 +85,7 @@ let hzn = {
   },
   publishPattern: () => {
     return new Observable((observer) => {
-      let arg = `hzn exchange pattern publish -f config/pattern.json`;
+      let arg = `hzn exchange pattern publish -f config/mms/pattern.json`;
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
