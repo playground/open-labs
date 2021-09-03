@@ -5,7 +5,7 @@ Build-bundle will generate two executables under lib directory
   - lib/mms-deploy  
   - lib/service-deploy
 
-For now, to try out this toolkit, clone https://github.com/playground/open-lab, cd into open-horizon, run any of the following commands.
+***For now, to try out this toolkit, clone https://github.com/playground/open-lab, cd into open-horizon, run any of the following commands.
 
 ### This toolkit comes with the following convenient commnands 
 
