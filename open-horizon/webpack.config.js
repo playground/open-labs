@@ -44,7 +44,7 @@ module.exports = {
       '@common/*': 'common/src'
     }
   },
-  externals: [nodeExternals(), nodeModules],
+  externals: [nodeModules],
   mode: 'production',
   target: 'node',
   node: {

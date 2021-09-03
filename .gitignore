@@ -50,8 +50,8 @@ models
 inference_graph
 *.zip
 *.pem
-/dist/common/
-/dist/src/
+dist/common/*
+dist/src/*
 dist-old
 history*.txt
 notes/
