@@ -43,8 +43,8 @@ Build-bundle will generate two executables under lib directory
 ### npm run list-deployment-policy --env=demo --name=demo/policy-ibm.cpu2evtstreams_1.4.3
 - To list deployment policy by name and by organization
 
-### npm run register-agent
-- Will perform all of the following commands
+### npm run register-agent or npm run register-agent --env=demo
+- Will perform all of the following commands for the specified organization, default is biz
 
 ### npm run builld
 - Builds the docker image
