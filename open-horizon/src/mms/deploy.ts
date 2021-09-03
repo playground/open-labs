@@ -289,27 +289,47 @@ let hzn = {
   },
   createHznKey: () => {
     return utils.createHznKey();
+  },
+  installHznCli: () => {
+    return new Observable((observer) => {
+      utils.installHznCli()
+      .subscribe({
+        complete: () => {
+          utils.createHznKey()
+          .subscribe({
+            complete: () => {
+              observer.complete();
+            }
+          })
+        }
+      })
+    });  
   }
 }
 
-envVar.init()
-.subscribe({
-  next: () => {
-    hzn.setup()
-    .subscribe({
-      complete: () => {
-        // @ts-ignore
-        console.log(task)
-        hzn[task]()
-        .subscribe(() => {
-          console.log('process completed.');
-          process.exit(0)
-        })  
-      }, error: (err) => {
-        console.log('something went wrong. ', err);
-      }
-    })
-  }, error: (err) => {
-    console.log('something went wrong. ', err);
-  }  
-})
+if(hzn[task]) {
+  envVar.init()
+  .subscribe({
+    next: () => {
+      hzn.setup()
+      .subscribe({
+        complete: () => {
+          // @ts-ignore
+          console.log(task)
+          hzn[task]()
+          .subscribe(() => {
+            console.log('process completed.');
+            process.exit(0)
+          })  
+        }, error: (err) => {
+          console.log('something went wrong. ', err);
+        }
+      })
+    }, error: (err) => {
+      console.log('something went wrong. ', err);
+    }  
+  })  
+} else {
+  console.log(`${task} command not found...`)
+  process.exit(0)
+}

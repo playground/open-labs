@@ -52,6 +52,9 @@ export class Utils {
   getDeviceArch() {
     return this.shell(`hzn architecture`);  
   }
+  installHznCli() {
+    return this.shell(`curl -u "$HZN_ORG_ID/$HZN_EXCHANGE_USER_AUTH" -k -o agent-install.sh $HZN_FSS_CSSURL/api/v1/objects/IBM/agent_files/agent-install.sh/data && chmod +x agent-install.sh && sudo -s -E ./agent-install.sh -i 'css:'`)
+  }
   shell(arg: string) {
     return new Observable((observer) => {
       exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {

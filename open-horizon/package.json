@@ -28,6 +28,7 @@
     "check-config-state": "npm run deploy --task=checkConfigState",
     "list-node-pattern": "npm run deploy --task=listNodePattern",
     "get-device-arch": "npm run deploy --task=getDeviceArch",
+    "install-hzn-cli": "npm run deploy --task=installHznCli",
     "test": "npm run deploy --task=test",
     "deploy-service": "lib/service-deploy.js",
     "test-service": "npm run deploy-service --task=test"
