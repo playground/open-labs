@@ -1,5 +1,5 @@
 # IEAM / Open Horizon Toolkit
-Open Horizon toolkit help streamline the process of preparing node agents and perform tasks between orgs environments. 
+Open Horizon toolkit help streamline the process of preparing node agents and performing various tasks across orgs environments. 
 
 Build-bundle will generate two executables under lib directory
   - lib/mms-deploy  
