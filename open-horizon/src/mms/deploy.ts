@@ -12,6 +12,9 @@ let objectType: any;
 let objectId: any;
 let objectFile: any;
 let pattern: any;
+let serviceJson: any;
+let patternJson: any;
+let policyJson: any;
 const envVar = new Env();
 const utils = new Utils();
 
@@ -22,6 +25,9 @@ let hzn = {
       objectId = process.env.npm_config_id || envVar.getMMSObjectId();
       objectFile = process.env.npm_config_object || envVar.getMMSObjectFile();
       pattern = process.env.npm_config_pattern || envVar.getMMSPatterName();
+      patternJson = process.env.npm_config_patternjson || 'config/mms/pattern.json';
+      serviceJson = process.env.npm_config_servicejson || 'config/mms/service.json';
+      policyJson = process.env.npm_config_policyjson || 'config/mms/policy.json';
       observer.complete();
     });  
   },
@@ -68,7 +74,7 @@ let hzn = {
   },
   publishService: () => {
     return new Observable((observer) => {
-      let arg = `hzn exchange service publish -O ${envVar.getMMSContainerCreds()} -f config/mms/service.json`;
+      let arg = `hzn exchange service publish -O ${envVar.getMMSContainerCreds()} -f ${serviceJson}`;
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
@@ -85,7 +91,7 @@ let hzn = {
   },
   publishPattern: () => {
     return new Observable((observer) => {
-      let arg = `hzn exchange pattern publish -f config/mms/pattern.json`;
+      let arg = `hzn exchange pattern publish -f ${patternJson}`;
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
@@ -102,7 +108,7 @@ let hzn = {
   },
   agentRun: () => {
     return new Observable((observer) => {
-      let arg = `hzn register --policy config/mms/policy.json --pattern "${pattern}"`;
+      let arg = `hzn register --policy ${policyJson} --pattern "${pattern}"`;
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
