@@ -1,5 +1,5 @@
 const path = require('path');
-const dist = 'dist';  // be aware 'dist' folder is also used for tsconfig output
+const dist = 'lib';  // be aware 'dist' folder is also used for tsconfig output
 const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');

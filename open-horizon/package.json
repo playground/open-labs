@@ -6,9 +6,9 @@
   "scripts": {
     "build": "npm run tsc",
     "tsc": "tsc",
-    "bundle": "webpack --config webpack.config.js && chmod +x dist/*.js",
+    "bundle": "webpack --config webpack.config.js && chmod +x lib/*.js",
     "build-bundle": "npm run build && npm run bundle",
-    "deploy": "dist/mms-deploy.js",
+    "deploy": "lib/mms-deploy.js",
     "build-image": "npm run deploy --task=build",
     "push-image": "npm run deploy --task=push",
     "publish-service": "npm run deploy --task=publishService",
@@ -29,7 +29,7 @@
     "list-node-pattern": "npm run deploy --task=listNodePattern",
     "get-device-arch": "npm run deploy --task=getDeviceArch",
     "test": "npm run deploy --task=test",
-    "deploy-service": "dist/service-deploy.js",
+    "deploy-service": "lib/service-deploy.js",
     "test-service": "npm run deploy-service --task=test"
   },
   "keywords": [
