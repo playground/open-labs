@@ -1,73 +1,49 @@
 #! /usr/bin/env node
-const { Observable, forkJoin } = require('rxjs');
+import { Observable, forkJoin } from 'rxjs';
 const cp = require('child_process'),
 exec = cp.exec;
-const { readFileSync, writeFileSync } = require('fs');
-const { Env } = require('./env') ;
+import { readFileSync, writeFileSync } from 'fs';
+import { Env } from './env';
+import { Utils } from '@common/utils';
 const prompt = require('prompt');
 
-const task = process.env.npm_config_task || 'build';
-let objectType;
-let objectId;
-let objectFile;
+const task = process.env.npm_config_task || 'test';
+let objectType: any;
+let objectId: any;
+let objectFile: any;
+let pattern: any;
+let serviceJson: any;
+let patternJson: any;
+let policyJson: any;
+const envVar = new Env();
+const utils = new Utils();
 
 let hzn = {
   setup: () => {
     return new Observable((observer) => {
-      objectType = process.env.npm_config_type || Env.getMMSObjectType();
-      objectId = process.env.npm_config_id || Env.getMMSObjectId();
-      objectFile = process.env.npm_config_object || Env.getMMSObjectFile();
-      pattern = process.env.npm_config_pattern || Env.getMMSPatterName();
+      objectType = process.env.npm_config_type || envVar.getMMSObjectType();
+      objectId = process.env.npm_config_id || envVar.getMMSObjectId();
+      objectFile = process.env.npm_config_object || envVar.getMMSObjectFile();
+      pattern = process.env.npm_config_pattern || envVar.getMMSPatterName();
+      patternJson = process.env.npm_config_patternjson || 'config/mms/pattern.json';
+      serviceJson = process.env.npm_config_servicejson || 'config/mms/service.json';
+      policyJson = process.env.npm_config_policyjson || 'config/mms/policy.json';
       observer.complete();
     });  
   },
-  exportHzn: () => {
+  test: () => {
     return new Observable((observer) => {
-      // hznJson = require('../config/hzn.json');
-      // let json = {};
-      // let recurse = (obj) => {
-      //   for(const [key, value] of Object.entries(obj)) {
-      //     if(value != undefined) {
-      //       if(value && typeof value === 'object') {
-      //         recurse(value);
-      //       } else {
-      //         json[key] = value;
-      //       }
-      //     }
-      //   }  
-      // }
-      // recurse(hznJson);
-      // for(const [key, value] of Object.entries(json)) {
-      //   process.env[key] = value;
-      //   console.log(`${key}: ${process.env[key]}`);
-      // }
-      console.log(Env.getDockerImageBase())
-      console.log(process.env.HZN_ORG_ID)
-      if(!Env.getArch() || Env.getArch() === undefined) {
-        let arg = `echo $HZN_ORG_ID $MMS_SERVICE_NAME $ARCH $MMS_SERVICE_NAME $MMS_SERVICE_VERSION $YOUR_SERVICE_NAME $YOUR_SERVICE_VERSION $MMS_CONTAINER $MMS_SHARED_VOLUME`
-        exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
-          if(!err) {
-            console.log(stdout)
-            console.log(`done echoing hzn envs`);
-          } else {
-            console.log('failed to echo hzn envs', err);
-          }
-          observer.next();
-          observer.complete();
-        });  
-      } else {
-        observer.next();
-        observer.complete();
-      }
-    })  
+      console.log('it works...')
+      observer.complete();
+    });  
   },
   build: () => {
     return new Observable((observer) => {
-      // let tag = `${Env.getDockerImageBase()}_${Env.getArch()}:${Env.getMMSServiceVersion()}`;
-      let arg = `docker build -t ${Env.getMMSContainer()} -f Dockerfile.${Env.getArch()} .`.replace(/\r?\n|\r/g, '');
+      // let tag = `${envVar.getDockerImageBase()}_${envVar.getArch()}:${envVar.getMMSServiceVersion()}`;
+      let arg = `docker build -t ${envVar.getMMSContainer()} -f Dockerfile.${envVar.getArch()} .`.replace(/\r?\n|\r/g, '');
       // arg = 'docker build -t playbox21/my-mms-service_amd64:1.0.0 -f Dockerfile.arm64 .' 
       console.log(arg)
-      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+      exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
           console.log(stdout)
           console.log(`done building docker image`);
@@ -81,9 +57,9 @@ let hzn = {
   },
   push: () => {
     return new Observable((observer) => {
-      let arg = `docker push ${Env.getMMSContainer()}`;
+      let arg = `docker push ${envVar.getMMSContainer()}`;
       console.log(arg)
-      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+      exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
           console.log(stdout)
           console.log(`done publishing mms service`);
@@ -98,9 +74,9 @@ let hzn = {
   },
   publishService: () => {
     return new Observable((observer) => {
-      let arg = `hzn exchange service publish -O ${Env.getMMSContainerCreds()} -f config/service.json`;
+      let arg = `hzn exchange service publish -O ${envVar.getMMSContainerCreds()} -f ${serviceJson}`;
       console.log(arg)
-      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+      exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
           console.log(stdout)
           console.log(`done publishing mms service`);
@@ -115,9 +91,9 @@ let hzn = {
   },
   publishPattern: () => {
     return new Observable((observer) => {
-      let arg = `hzn exchange pattern publish -f config/pattern.json`;
+      let arg = `hzn exchange pattern publish -f ${patternJson}`;
       console.log(arg)
-      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+      exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
           console.log(stdout)
           console.log(`done publishing mss pattern`);
@@ -132,9 +108,9 @@ let hzn = {
   },
   agentRun: () => {
     return new Observable((observer) => {
-      let arg = `hzn register --policy config/policy.json --pattern "${pattern}"`;
+      let arg = `hzn register --policy ${policyJson} --pattern "${pattern}"`;
       console.log(arg)
-      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+      exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
           console.log(stdout)
           console.log(`done registering mss agent`);
@@ -151,7 +127,7 @@ let hzn = {
     return new Observable((observer) => {
       let arg = `hzn mms object publish --type=${objectType} --id=${objectId} --object=${objectFile} --pattern=${pattern}`
       console.log(arg)
-      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+      exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
           console.log(stdout)
           console.log(`done publishing object`);
@@ -168,7 +144,7 @@ let hzn = {
     return new Observable((observer) => {
       let arg = `hzn unregister -f`;
       console.log(arg)
-      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+      exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
         if(!err) {
           console.log(stdout)
           console.log(`done unregistering mss agent`);
@@ -237,7 +213,7 @@ let hzn = {
   updateHorizonInfo: () => {
     return new Observable((observer) => {
       let data = hzn.getHorizonInfo();
-      let props = [];
+      let props: any[] = [];
       data.forEach((el, i) => {
         if(el.length > 0) {
           let prop = el.split('=');
@@ -247,11 +223,11 @@ let hzn = {
         }
       });
       console.log('\nKey in new value or press Enter to keep current value: ')
-      prompt.get(props, (err, result) => {
+      prompt.get(props, (err: any, result: any) => {
         console.log(result)
 
         console.log('\nWould like to update horizon: Y/n?')
-        prompt.get({name: 'answer', required: true}, (err, question) => {
+        prompt.get({name: 'answer', required: true}, (err: any, question: any) => {
           if(question.answer === 'Y') {
             let content = '';
             for(const [key, value] of Object.entries(result)) {
@@ -269,56 +245,61 @@ let hzn = {
       })
     })  
   },
-  copyFile: (arg) => {
+  copyFile: (arg: string) => {
     return new Promise((resolve, reject) => {
       try {
         console.log(arg);
-        exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+        exec(arg, {maxBuffer: 1024 * 2000}, (err: any, stdout: any, stderr: any) => {
           if(!err) {
             console.log(`done moving file`);
           } else {
             console.log('failed to move file', err);
           }
-          resolve();
+          resolve(stdout);
         });       
       } catch(e) {
         console.log(e)
-        resolve();
+        resolve(e);
       }
     });
   },
-  shell: (arg) => {
-    return new Observable((observer) => {
-      exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
-        if(!err) {
-          console.log(stdout);
-          observer.next(stdout);
-          observer.complete();
-        } else {
-          console.log(`shell command failed: ${err}`);
-          observer.error(err);
-        }
-      });  
-    });
-  },
   listService: () => {
-    let service = process.env.npm_config_service;
-    service = service ? `hzn exchange service list ${service}` : 'hzn exchange service list';
-    return hzn.shell(service);
+    return utils.listService();
   },
   listPattern: () => {
-    let pattern = process.env.npm_config_pattern;
-    pattern = pattern ? `hzn exchange pattern list ${pattern}` : 'hzn exchange pattern list';
-    return hzn.shell(pattern);
+    return utils.listPattern();
+  },
+  listNode: () => {
+    return utils.listNode();
+  },
+  listObject: () => {
+    return utils.listObject();
+  },
+  listDeploymentPolicy: () => {
+    return utils.listDeploymentPolicy();
+  },
+  checkConfigState: () => {
+    return utils.checkConfigState();
+  },
+  listNodePattern: () => {
+    return utils.listNodePattern();
+  },
+  getDeviceArch: () => {
+    return utils.getDeviceArch();
+  },
+  createHznKey: () => {
+    return utils.createHznKey();
   }
 }
 
-Env.init()
+envVar.init()
 .subscribe({
   next: () => {
     hzn.setup()
     .subscribe({
       complete: () => {
+        // @ts-ignore
+        console.log(task)
         hzn[task]()
         .subscribe(() => {
           console.log('process completed.');

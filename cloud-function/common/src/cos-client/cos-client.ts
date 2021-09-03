@@ -21,7 +21,7 @@ export class CosClient {
       serviceInstanceId: params.serviceInstanceId,
       region: params.region
     }
-    console.log('$$$config', config)
+    // console.log('$$$config', config)
     this.client = new COS.S3(config);
   }
   ls(bucket, directory, delimiter = null)  {
@@ -326,19 +326,22 @@ export class CosClient {
       let config = {
         Bucket: params.bucket,
         Key: params.filename,
-        Expires: params.expires ? params.expires : 900
+        Expires: params.expires ? parseInt(params.expires) : 900
       };
       try {
+        let url = '';
         from(this.client.getSignedUrl('getObject', config))
-        .subscribe((url) => {
-          observer.next({url: url});
-          observer.complete();
+        .subscribe({
+          next: (chunk) => url += chunk,
+          error: (err) => observer.error(err),
+          complete: () => {
+            observer.next({url: url});
+            observer.complete();  
+          }
         })
       } catch (err) {
         console.log(err);
-        observer.next({result: `unable to generate signed url: ${err}`});
-        observer.complete();
-
+        observer.error(`unable to generate signed url: ${err}`);
       }
     });
   }

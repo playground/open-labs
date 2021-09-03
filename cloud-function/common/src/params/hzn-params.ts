@@ -5,4 +5,5 @@ export interface HznParams extends ApiParams {
   id: string;
   object: string;
   pattern: string;
+  url: string;
 }

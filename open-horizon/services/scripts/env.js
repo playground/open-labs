@@ -37,8 +37,8 @@ class Env {
     });
   }
   static setAdditionalEnv() {
-    pEnv.MMS_PATTERN_NAME = `pattern-${pEnv.MMS_SERVICE_NAME}-${pEnv.ARCH}`;
-    pEnv.MMS_CONTAINER = `${pEnv.YOUR_DOCKERHUB_ID}/${pEnv.MMS_SERVICE_NAME}_${pEnv.ARCH}:${pEnv.MMS_SERVICE_VERSION}`.replace(/\r?\n|\r/g, '')
+    pEnv.PATTERN_NAME = `pattern-${pEnv.SERVICE_NAME}`;
+    pEnv.SERVICE_CONTAINER = `${pEnv.YOUR_DOCKERHUB_ID}/${pEnv.SERVICE_NAME}:${pEnv.SERVICE_VERSION}`.replace(/\r?\n|\r/g, '')
   }
   static getEnv() {
     return env;
@@ -57,46 +57,34 @@ class Env {
     return pEnv.HZN_FSS_CSSURL;
   }
   static getMyServiceName() {
-    return pEnv.YOUR_SERVICE_NAME;
+    return pEnv.SERVICE_NAME;
   }
   static getMyServiceVersion() {
-    return pEnv.YOUR_SERVICE_VERSION;
+    return pEnv.SERVICE_VERSION;
   }
   static getMMSSharedVolume() {
     return pEnv.MMS_SHARED_VOLUME;
+  }
+  static getVolumeMount() {
+    return pEnv.VOLUME_MOUNT;
   }
   static getMyDockerHubId() {
     return pEnv.YOUR_DOCKERHUB_ID;
   }
   static getDockerImageBase() {
-    return `${pEnv.YOUR_DOCKERHUB_ID}/${pEnv.MMS_SERVICE_NAME}`;
+    return `${pEnv.YOUR_DOCKERHUB_ID}/${pEnv.SERVICE_NAME}`;
   }
-  static getMMSContainerCreds() {
-    return pEnv.MMS_CONTAINER_CREDS;
+  static getContainerCreds() {
+    return pEnv.CONTAINER_CREDS;
   }
-  static getMMSPatterName() {
-    return pEnv.MMS_PATTERN_NAME;
+  static getPatterName() {
+    return pEnv.PATTERN_NAME;
   }
-  static getMMSServiceName() {
-    return pEnv.MMS_SERVICE_NAME;
-  }
-  static getMMSServiceVersion() {
-    return pEnv.MMS_SERVICE_VERSION;
-  }
-  static getMMSContainer() {
-    return pEnv.MMS_CONTAINER;
+  static getServiceContainer() {
+    return pEnv.SERVICE_CONTAINER;
   }
   static getArch() {
     return pEnv.ARCH;
-  }
-  static getMMSObjectType() {
-    return pEnv.MMS_OBJECT_TYPE;
-  }
-  static getMMSObjectId() {
-    return pEnv.MMS_OBJECT_ID
-  }
-  static getMMSObjectFile() {
-    return pEnv.MMS_OBJECT_FILE
   }
 }
 

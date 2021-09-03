@@ -1,0 +1,35 @@
+{
+  "name": "services",
+  "version": "1.0.0",
+  "description": "Services for IEAM/Open Horizon",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "scripts/deploy.js",
+    "publish-service": "npm run deploy --task=publishService",
+    "publish-pattern": "npm run deploy --task=publishPattern",
+    "show-horizon-info": "npm run deploy --task=showHorizonInfo",
+    "update-horizon-info": "npm run deploy --task=updateHorizonInfo",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/playground/open-labs/services"
+  },
+  "keywords": [
+    "IEAM",
+    "Open",
+    "Horizon",
+    "edge",
+    "computing",
+    "MMS",
+    "Model",
+    "Management",
+    "Service"
+  ],
+  "author": "ljeff@us.ibm.com",
+  "license": "ISC",
+  "dependencies": {
+    "prompt": "^1.2.0",
+    "rxjs": "^7.3.0"
+  }
+}

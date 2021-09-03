@@ -1,4 +1,4 @@
-import { forkJoin, Observable, of, from } from 'rxjs';
+import { Observable, of, from } from 'rxjs';
 import { HznParams } from '@common/params/hzn-params';
 import { Messenger } from '@common/messenger';
 import { util } from '@common/utility';
@@ -6,8 +6,7 @@ import { CosClient } from '@common/cos-client';
 import { mkdirSync, readdir, readFileSync, writeFileSync, stat, existsSync } from 'fs';
 import path = require('path');
 import  * as https from 'https';
-const multipart = require('parted').multipart;
-import str2stream = require('string-to-stream');
+import { maxHeaderSize } from 'http';
 const cp = require('child_process'),
 exec = cp.exec;
 
@@ -24,7 +23,7 @@ export default function main(params: HznParams) {
     }, (err) => {
       console.log(err);
       const response = new Messenger(params);
-      resolve(response.error('something went wrong...', 400));
+      resolve(response.error(`something went wrong...${err}`, 400));
     }, () => {
       const response = new Messenger(params);
       resolve(response.send(result));
@@ -37,17 +36,17 @@ export default function main(params: HznParams) {
 let action = {
   exec: (params: HznParams) => {
     const baseUrl = 'https://service.us.apiconnect.ibmcloud.com/gws/apigateway/api/646d429a9e5f06572b1056ccc9f5ba4de6f5c30159f10fcd1f1773f58d35579b/hzn/';
-    let path = params['__ow_headers']['x-forwarded-url'].replace(baseUrl, '').replace(/\//g, '_');
-    console.log('$$$$$$', params['__ow_path'], path)
-    params.days = params.days ? params.days : '1';
+    let path = params['__ow_headers'] ? params['__ow_headers']['x-forwarded-url'].replace(baseUrl, '').replace(/\//g, '_').replace(/\?.+/, '') : null;
+    // let path = params['__ow_headers']['x-forwarded-url'].replace(baseUrl, '').replace(/\//g, '_');
+    console.log('$$$$$$', params['__ow_path'], path, params.filename)
     if(!existsSync('/upload')) {
       mkdirSync('/upload');
     } 
-    if(!params.date) {
-      const date = util.formatMD(util.getDate());
-      params.date = `${date.year}${date.month}${date.day}`;
+    if(params.value && !params.func) {
+      params = Object.assign(params, params.value);
     }
-    return (action[path] || action[params.method] || action.default)(params);
+
+    return (action[path] || action[params.func] || action[params.body.func] || action.default)(params);
   },
   hzn_get: (params: HznParams) => {
     return of({data: 'test hzn get'});
@@ -67,11 +66,41 @@ let action = {
   hzn_obj_url: (params: HznParams) => {
     return new Observable((observer) => {
       cosClient.getSignedUrl(params)
-      .subscribe((res) => {
-        observer.next(res);
-        observer.complete();
+      .subscribe({
+        error: (err) => observer.error(err),
+        next: (res) => {
+          observer.next(res);
+          observer.complete();
+        }
       })
     });
+  },
+  hzn_mms_url: (params: HznParams) => {
+    return new Observable((observer) => {
+      action.hzn_obj_url(params)
+      .subscribe({
+        next: (res: HznParams) => {
+          let config = {
+            hello: 'MMS delivery',
+            url: res.url
+          }
+          let filename = params.filename || 'config.json'
+          writeFileSync(filename, JSON.stringify(config));
+          let arg = `/usr/bin/hzn mms object publish --type=${params.type} --id=${params.id} --object=${filename} --pattern=${params.pattern}`;
+          exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+            if(!err) {
+              console.log(`${arg}`);
+              observer.next();
+              observer.complete();
+            } else {
+              console.log(`failed mms publish...${err}`);
+              observer.error(err);
+            }
+          });    
+        },
+        error: (err) => observer.error(err)
+      })
+    });  
   },
   hzn_mms_file: (params: HznParams) => {
     return new Observable((observer) => {
@@ -172,76 +201,6 @@ let action = {
         }
       });
     });    
-  },
-  demo_cos_upload: (params: HznParams)=> {
-    return new Observable((observer) => {
-      try {
-        let decoded = Buffer.from( params['__ow_body'], 'base64' );
-        // @ts-ignore
-        const stream = str2stream(decoded);
-
-        let parser = new multipart(
-          params['__ow_headers'][ 'content-type' ], {
-            limit: 30 * 1024,
-            diskLimit: 30 * 1024 * 1024,
-            path: '/upload'
-          }
-        );
-        let parts = {};
-        let $upload = [];
-
-        parser.on('error', function( err ) {
-          console.log( 'Whoops!', err );
-        } );
-    
-        parser.on('part', function( field, part ) {
-          parts[field] = part;
-        } );
-
-        parser.on('end', async function() {
-          // console.log('$$$parts', parts);
-          action.traverse(`/upload`, (err, files) => {
-            if(err) {
-                console.log('$$$error', err)
-            }
-            console.log('$$$file: ', files, parts)
-            params.directory = parts['directory'];
-            if(!params.directory) {
-              observer.next('please speficfy a directory where you want the files to be uploaded in the bucket.');
-              observer.complete();
-            } else {
-              let body: any;
-              let filename = '';
-              let splits = [];
-              files.forEach((file) => {
-                body = readFileSync(file);
-                splits = file.split('.');
-                filename = `${params.directory}/${file.replace(splits[splits.length-2] + '.', '').replace('/upload/', '')}`;
-                $upload.push(action.upload(body, filename, params));
-              });
-              action.removeDir('/upload/*')
-              .subscribe(() => {
-                forkJoin($upload)
-                .subscribe((uploads) => {
-                  // do something as needed
-                  splits = uploads;
-                  console.log('$$$uploads ', uploads)
-                }, (err) => {
-                  observer.error(err);
-                }, () => {
-                  observer.next(`Upload successfully...${splits}`);
-                  observer.complete();
-                })
-              });
-            }
-          })
-        });
-        stream.pipe( parser );
-      } catch(err) {
-        observer.next(`Upload failed. ${err}`);
-        observer.complete();
-      }  
-    });
   },
   upload: (body, f, params) => {
     return new Observable((observer) => {

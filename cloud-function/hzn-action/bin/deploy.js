@@ -20,23 +20,7 @@ const yaml = process.env.npm_config_api ? 'manifest-api.yaml' : 'manifest.yaml';
 let build = {
   deployTS: () => {
     build.getEnvVar();
-    let arg = `BUCKET=${process.env.BUCKET} ACCESSKEYID=${process.env.ACCESSKEYID} `;
-    arg += `SECRETACCESSKEY=${process.env.SECRETACCESSKEY}  COS_ENDPOINT=${process.env.COS_ENDPOINT} `;
-    arg += ` COS_IBMAUTHENDPOINT=${process.env.COS_IBMAUTHENDPOINT} REGION=${process.env.REGION} `;
-    arg += ` SERVICEINSTANCEID=${process.env.SERVICEINSTANCEID} wskdeploy -m ${yaml}`;
-    console.log('deploying...')
-    exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
-      if(!err) {
-        console.log(stdout)
-        console.log(`done deploying ${package}`);
-      } else {
-        console.log('failed to deploy', err);
-      }
-    });
-  },
-  deploy: () => {
-    build.getEnvVar();
-    let arg = `ibmcloud fn action update ${package}/hzn-action --memory 2048 --timeout 20000 --docker playbox21/hzn-action:1.0.0 `;
+    let arg = `ibmcloud fn action update ${package}/hzn-action dist/hzn-action.js --memory 2048 --timeout 20000 --docker playbox21/hzn-action `;
     arg += ` --param bucket ${process.env.BUCKET} --param accessKeyId ${process.env.ACCESSKEYID}`;
     arg += ` --param secretAccessKey ${process.env.SECRETACCESSKEY} --param endpoint ${process.env.COS_ENDPOINT}`;
     arg += ` --param ibmAuthEndpoint ${process.env.COS_IBMAUTHENDPOINT} --param region ${process.env.REGION}`;
@@ -48,6 +32,22 @@ let build = {
         console.log(`done add/update ${package}/hzn-action`);
       } else {
         console.log('failed to add/update hzn-action', err);
+      }
+    });
+  },
+  deploy: () => {
+    build.getEnvVar();
+    let arg = `BUCKET=${process.env.BUCKET} ACCESSKEYID=${process.env.ACCESSKEYID} `;
+    arg += `SECRETACCESSKEY=${process.env.SECRETACCESSKEY}  COS_ENDPOINT=${process.env.COS_ENDPOINT} `;
+    arg += ` COS_IBMAUTHENDPOINT=${process.env.COS_IBMAUTHENDPOINT} REGION=${process.env.REGION} `;
+    arg += ` SERVICEINSTANCEID=${process.env.SERVICEINSTANCEID} wskdeploy -m ${yaml}`;
+    console.log('deploying...')
+    exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
+      if(!err) {
+        console.log(stdout)
+        console.log(`done deploying ${package}`);
+      } else {
+        console.log('failed to deploy', err);
       }
     });
   },

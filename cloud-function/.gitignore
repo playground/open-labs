@@ -50,7 +50,7 @@ models
 inference_graph
 *.zip
 *.pem
-dist/
+dist
 dist-old
 history*.txt
 notes/
