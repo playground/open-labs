@@ -8,10 +8,16 @@ const prompt = require('prompt');
 
 const task = process.env.npm_config_task || 'test';
 const envVar = new Env();
+let serviceJson: any;
+let patternJson: any;
+let policyJson: any;
 
 let hzn = {
   setup: () => {
     return new Observable((observer) => {
+      patternJson = process.env.npm_config_patternjson || 'config/service/pattern.json';
+      serviceJson = process.env.npm_config_servicejson || 'config/service/service.json';
+      policyJson = process.env.npm_config_policyjson || 'config/service/policy.json';
       observer.complete();
     });  
   },
@@ -23,7 +29,7 @@ let hzn = {
   },
   publishService: () => {
     return new Observable((observer) => {
-      let arg = `hzn exchange service publish -O ${envVar.getContainerCreds()} -f config/service.json --pull-image`;
+      let arg = `hzn exchange service publish -O ${envVar.getContainerCreds()} -f ${serviceJson} --pull-image`;
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
@@ -40,7 +46,7 @@ let hzn = {
   },
   publishPattern: () => {
     return new Observable((observer) => {
-      let arg = `hzn exchange pattern publish -f config/pattern.json`;
+      let arg = `hzn exchange pattern publish -f ${patternJson}`;
       console.log(arg)
       exec(arg, {maxBuffer: 1024 * 2000}, (err, stdout, stderr) => {
         if(!err) {
