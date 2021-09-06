@@ -11,8 +11,8 @@
     "deploy": "lib/mms-deploy.js",
     "build-image": "npm run deploy --task=build",
     "push-image": "npm run deploy --task=push",
-    "publish-service": "npm run deploy --task=publishService",
-    "publish-pattern": "npm run deploy --task=publishPattern",
+    "publish-mms-service": "npm run deploy --task=publishService",
+    "publish-mms-pattern": "npm run deploy --task=publishPattern",
     "agent-run": "npm run deploy --task=agentRun",
     "publish-object": "npm run deploy --task=publishObject",
     "register-agent": "npm run deploy --task=registerAgent",
@@ -31,6 +31,8 @@
     "install-hzn-cli": "npm run deploy --task=installHznCli",
     "test": "npm run deploy --task=test",
     "deploy-service": "lib/service-deploy.js",
+    "publish-service": "npm run deploy-service --task=publishService",
+    "publish-pattern": "npm run deploy-service --task=publishPattern",
     "test-service": "npm run deploy-service --task=test"
   },
   "keywords": [
