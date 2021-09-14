@@ -15,7 +15,7 @@ export class Env {
   }
   init() {
     return new Observable((observer) => {
-      this.hznEnv = pEnv.npm_config_hznEnv || './config/mms/.env-hzn.json';
+      this.hznEnv = pEnv.npm_config_hznEnv || './config/service/.env-hzn.json';
       this.hznJson = JSON.parse(readFileSync(this.hznEnv).toString());
       console.log(process.cwd(), this.env, this.hznJson)
       this.envVars = this.hznJson[this.env]['envVars'];
@@ -47,7 +47,7 @@ export class Env {
   }
   setAdditionalEnv() {
     pEnv.PATTERN_NAME = `pattern-${pEnv.SERVICE_NAME}`;
-    pEnv.SERVICE_CONTAINER = `${pEnv.YOUR_DOCKERHUB_ID}/${pEnv.SERVICE_NAME}:${pEnv.SERVICE_VERSION}`.replace(/\r?\n|\r/g, '')
+    pEnv.SERVICE_CONTAINER = `${pEnv.YOUR_DOCKERHUB_ID}/${pEnv.SERVICE_NAME}_${pEnv.ARCH}:${pEnv.SERVICE_VERSION}`.replace(/\r?\n|\r/g, '')
   }
   getEnv() {
     return this.env;
