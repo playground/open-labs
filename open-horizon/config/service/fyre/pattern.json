@@ -1,5 +1,5 @@
 {
-  "name": "$PATTERN_NAME",
+  "name": "pattern-${SERVICE_NAME}-$ARCH",
   "services": [
     {
       "serviceUrl": "$SERVICE_NAME",

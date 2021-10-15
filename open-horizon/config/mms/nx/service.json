@@ -11,8 +11,8 @@
   "requiredServices": [
     {
       "org": "$HZN_ORG_ID",
-      "url": "$YOUR_SERVICE_NAME",
-      "version": "$YOUR_SERVICE_VERSION",
+      "url": "$SERVICE_NAME",
+      "version": "$SERVICE_VERSION",
       "arch": "$ARCH"
     }
   ],
