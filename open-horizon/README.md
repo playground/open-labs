@@ -1,9 +1,13 @@
 # IEAM / Open Horizon Toolkit
-Open Horizon toolkit help streamline the process of preparing node agents and perform tasks between orgs environments. 
+Open Horizon toolkit help streamline the process of preparing node agents and performing various tasks across orgs environments. 
 
 Build-bundle will generate two executables under lib directory
   - lib/mms-deploy  
   - lib/service-deploy
+
+***For now, to try out this toolkit, clone https://github.com/playground/open-lab, cd into open-horizon, run any of the following commands.
+
+### Note:  Make a copy of env-hzn.json and name it as .env-hzn.json on your local machine and fill in all the required values in the .env-hzn.json file for each organization
 
 ### This toolkit comes with the following convenient commnands 
 
@@ -34,31 +38,31 @@ Build-bundle will generate two executables under lib directory
 ### Note:  Make a copy of env-hzn.json and name it as .env-hzn.json on your local machine and fill in all the required values in the .env-hzn.json file
 
 
-# NPM command examples
+## NPM command examples
 
-## npm run list-deployment-policy --env=demo --name=demo/policy-ibm.cpu2evtstreams_1.4.3
+### npm run list-deployment-policy --env=demo --name=demo/policy-ibm.cpu2evtstreams_1.4.3
 - To list deployment policy by name and by organization
 
-## npm run register-agent
-- Will perform all of the following commands
+### npm run register-agent or npm run register-agent --env=demo
+- Will perform all of the following commands for the specified organization, default is biz
 
-## npm run builld
+### npm run builld
 - Builds the docker image
 
-## npm run push
+### npm run push
 - Pushes the docker image to Docker Hub
 
-## npm run publish-service
+### npm run publish-service
 - Publishes MMS Service 
 
-## npm run publish-pattern
+### npm run publish-pattern
 - Publishes MMS Pattern
 
-## npm run agent-run
+### npm run agent-run
 - Registers agent with Management Hub 
 
-## npm run unregister-agent
+### npm run unregister-agent
 - Unregisgers agent
 
-## Publish new/update model
+### Publish new/update model
 - hzn mms object publish --type=object_detection --id=config.json --object=/demo-model/demo/version1/model.zip --pattern=pattern-pi-mms-service-arm
