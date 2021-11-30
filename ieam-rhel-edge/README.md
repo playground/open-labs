@@ -12,7 +12,7 @@
       * Ensure BOOT is set to yes 
         vi /etc/sysconfig/network-scripts/ifcfg-enp0s3 
       * sudo nmcli connection down enp1s0 && sudo nmcli connection up enp1s0 
-      * Access imageBuilder dashboard https://<ip-to-vm>:9090/
+      * Access imageBuilder dashboard https://\<ip-to-vm\>:9090/
       * Create a RHEL for Edge Commit (.tar)  
 
     * Download rhel-edge-commit tar file 
