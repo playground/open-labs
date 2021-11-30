@@ -1,6 +1,20 @@
 # Edge Computing, Setup IEAM to run on RHEL for Edge
 
-  * Install RHEL 8.4 in a vm(edge-server), use ImageBuilder to build the initial rhel-edge-commit 
+  * Install RHEL 8.4 in a vm(edge-server), use ImageBuilder to build the initial rhel-edge-commit
+    * A few things you will need to do to get rhel and imageBuilder dashboard ruunning
+      * Get started with RHEL for Edge https://www.redhat.com/en/blog/get-started-rhel-edge
+      * Subscribe to redhat 
+        subscription-manager register --username <redhat_login_username> --password <redhat_login_password> --auto-attach 
+      * systemctl stop libvirtd.service 
+      * systemctl disable libvirtd.service 
+      * systemctl status libvirtd.service 
+      * systemctl enable --now cockpit.socket or systemctl enablle –now osbuild-composer.socket 
+      * Ensure BOOT is set to yes 
+        vi /etc/sysconfig/network-scripts/ifcfg-enp0s3 
+      * sudo nmcli connection down enp1s0 && sudo nmcli connection up enp1s0 
+      * Access imageBuilder dashboard https://<ip-to-vm>:9090/
+      * Create a RHEL for Edge Commit (.tar)  
+
     * Download rhel-edge-commit tar file 
     * Tar –xvf rhel-edge-commit tar 
     * Create Dockerfile and kickstart(edge.ks) file (NOTE: available in setup folder)
