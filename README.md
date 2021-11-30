@@ -15,6 +15,8 @@ https://github.com/playground/tfjs-object-detection
   * Use Node JS too manage deployment https://github.com/playground/hzn-cli
 
 ### Edge Computing with IEAM/RHEL for Edge
+  * https://github.com/playground/open-labs/tree/main/ieam-rhel-edge
+  
 [![Watch the video](https://i9.ytimg.com/vi/5UaxlHa1P2U/mq3.jpg?sqp=CJiKmo0G&rs=AOn4CLBcddkPtX-9UXKiec9kp_Z-a3i6dA)](https://youtu.be/5UaxlHa1P2U)
 
 ### hzn-cli toolkit for NodeJS developers to work with IEAM/Open Horizon
