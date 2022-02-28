@@ -1,0 +1,7 @@
+{
+  "properties": [
+    { "name": "homehub", "value": "Home Automation" }
+  ],
+  "constraints": [
+  ]
+}
