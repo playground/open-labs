@@ -1,0 +1,16 @@
+{
+  "name": "code-engine-sdk-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "example.js",
+  "scripts": {
+    "test": "echo 'No tests'"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@kubernetes/client-node": "^0.13.2",
+    "axios": "^0.21.1",
+    "ibm-code-engine-sdk": "^0.1.5"
+  }
+}
