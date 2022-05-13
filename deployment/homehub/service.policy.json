@@ -1,7 +1,0 @@
-{
-  "properties": [
-  ],
-  "constraints": [
-    "homehub == \"Home Automation\""
-  ]
-}
