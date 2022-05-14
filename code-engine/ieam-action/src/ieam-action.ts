@@ -43,6 +43,9 @@ let action: any = {
         }
       })
     }
+    if(!result.bucket) {
+      result.bucket = process.env.bucket
+    }
     return result;
   },
   exec: (request: any): any => {
@@ -56,29 +59,62 @@ let action: any = {
   hello: (params: Params) => {
     return of('hello')
   },
+  get_signed_url: (params: Params) => {
+    return new Observable((observer: any) => {
+      cosClient.getSignedUrl(params)
+      .subscribe({
+        error: (err: any) => observer.error(err),
+        next: (res: any) => {
+          observer.next(res);
+          observer.complete();
+        }
+      })
+    });
+  },
+  list2: (params: Params) => {
+    return new Observable((observer: any) => {
+      let result: any;
+      console.log('bucker: ', params.bucket)
+      cosClient.ls(params.bucket, params.directory ? params.directory : '', params.delimiter ? params.delimiter : null)
+      .subscribe((data: any) => {
+        result = data;
+      }, (err: any) => {
+        console.log(err);
+        observer.next({});
+        observer.complete();
+      }, () => {
+        const directories = result.CommonPrefixes.map((p: any) => {
+          return p.Prefix;
+        });
+        const files = result.Contents.map((f: any) => {
+          return {key: f.Key, date: f.LastModified, size: f.Size};
+        });
+        observer.next({directories: directories, files: files});
+        observer.complete();
+      });
+    });
+  },
   list: (params: Params) => {
-    let body = params.body;
     return new Observable((observer: any) => {
       let dirFiles: any;
-      cosClient.ls(params.bucket, body.directory)
-        .subscribe((data: any) => {
-          dirFiles = data;
-          //console.log(dirFiles)
-        }, (error: any) => {
-          console.log('list error', error);
-          observer.next(error);
-          observer.complete();
-        }, () => {
-          let files:any = [];
-          if(dirFiles && dirFiles.Contents) {
-            dirFiles.Contents.map((file: any) => {
-              let key = file.Key;
-              files.push(key);
-            });
-          }
-          observer.next(files);
-          observer.complete();
-        });
+      cosClient.ls(params.bucket, params.directory ? params.directory : '', params.delimiter ? params.delimiter : null)
+      .subscribe((data: any) => {
+        dirFiles = data;
+        //console.log(dirFiles)
+      }, (error: any) => {
+        console.log('list error', error);
+        observer.error(error);
+      }, () => {
+        let files:any = [];
+        if(dirFiles && dirFiles.Contents) {
+          dirFiles.Contents.map((file: any) => {
+            let key = file.Key;
+            files.push(key);
+          });
+        }
+        observer.next(files);
+        observer.complete();
+      });
     });
   },
   error: (msg: string) => {

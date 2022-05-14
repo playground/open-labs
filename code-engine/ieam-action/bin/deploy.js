@@ -13,31 +13,47 @@ if(fs.existsSync('../.env-local')) {
   }
 }
 
-const env = process.env.npm_config_env || 'ieam-prod';
+const env = process.env.npm_config_env || 'prod';
 const package = process.env.npm_config_package || 'ieam-admin';
 const name = process.env.npm_config_name;
 const task = process.env.npm_config_task;
 const update = process.env.npm_config_create ? 'create' : 'update';
-let image = process.env.npm_config_image;
+const version = process.env.npm_config_image_version;
 
+console.log(task)
 if(!task) {
   console.log(`specify --task taskname...`)
   process.exit(0)
 }
-if(task == 'deploy' && !name) {
+if(!name) {
   console.log(`name is required:  specify --name appname...`)
   process.exit(0)
 }
-if((task == 'deploy' || task == 'push' || task == 'build') && !image) {
-  console.log(`image name is required:  specify --image imagename...`)
+if(!version) {
+  console.log(`version is required:  specify --image-version x.x.x`)
   process.exit(0)
 }
-console.log(image, image.match(/([^/]+$)/)[0])
-image = image.match(/([^/]+$)/)[0];
+let imageName = `${process.env.REGISTRY}${name}-${env}:${version}`;
+let appName = `${name}-${env}`;
+console.log(appName, imageName)
 
 let build = {
+  doall: () => {
+    let arg = 'npm run build && npm run bundle'
+    build.shell(arg)
+    .subscribe(() => {
+      arg = `docker build --no-cache -t ${imageName} .  `
+      build.shell(arg,`done building ${imageName} image`, `failed to build ${imageName} image`)
+      .subscribe(() => {
+        let arg = `docker push ${imageName}`
+        build.shell(arg,`done pushing ${imageName} image`, `failed to push ${imageName} image`)
+        .subscribe(() => {
+          build.deploy()
+        })
+      })
+    })
+  },
   build: () => {
-    let imageName = `${process.env.REGISTRY}${image}`
     let arg = `docker build --no-cache -t ${imageName} .  `
     build.shell(arg,`done building ${imageName} image`, `failed to build ${imageName} image`)
     .subscribe(() => {
@@ -45,8 +61,7 @@ let build = {
     })
   },
   push: () => {
-    let imageName = `${process.env.REGISTRY}${image}`
-    let arg = `docker push ${process.env.REGISTRY}${image}`
+    let arg = `docker push ${imageName}`
     build.shell(arg,`done pushing ${imageName} image`, `failed to push ${imageName} image`)
     .subscribe(() => {
       process.exit(0)
@@ -55,15 +70,19 @@ let build = {
   deploy: () => {
     build.getEnvVar();
     let pEnv = process.env;
-    let arg = `ibmcloud ce app ${update} -n ${name} --image ${pEnv.REGISTRY}${image}`
+    let arg = `ibmcloud ce app ${update} -n ${appName} --image ${imageName}`
     arg += ` --env bucket=${pEnv.BUCKET} --env accessKeyId=${pEnv.ACCESSKEYID}`;
     arg += ` --env secretAccessKey=${pEnv.SECRETACCESSKEY} --env endpoint=${pEnv.COS_ENDPOINT}`;
     arg += ` --env ibmAuthEndpoint=${pEnv.COS_IBMAUTHENDPOINT} --env region=${pEnv.REGION}`;
     arg += ` --env serviceInstanceId=${pEnv.SERVICEINSTANCEID}`;
     console.log('deploying...')
-    build.shell(arg,`done add/update ${name}`, `failed to add/update ${name}`)
-    .subscribe(() => {
-      process.exit(0)
+    build.shell(arg,`done add/update ${appName}`, `failed to add/update ${appName}`, false)
+    .subscribe({
+      complete: () => process.exit(0),
+      error: (err) => {
+        console.log('specify --create if this is a new service.')
+        process.exit(0)
+      }
     })
   },
   getEnvVar: () => {
