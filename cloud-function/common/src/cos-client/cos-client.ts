@@ -1,5 +1,5 @@
 import { Observable, forkJoin, from } from 'rxjs';
-const COS = require('ibm-cos-sdk');
+import * as COS from'ibm-cos-sdk';
 import { Params } from '../params';
 
 export class CosClient {
@@ -24,10 +24,10 @@ export class CosClient {
     // console.log('$$$config', config)
     this.client = new COS.S3(config);
   }
-  ls(bucket, directory, delimiter = null)  {
-    return new Observable((observer) => {
+  ls(bucket: string, directory: string, delimiter = null)  {
+    return new Observable((observer: any) => {
       let data;
-      let config = { 
+      let config: any = { 
         Bucket: bucket,
         MaxKeys: 1000,
         Prefix: directory

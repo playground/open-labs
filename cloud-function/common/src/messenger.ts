@@ -14,10 +14,10 @@ export class Messenger {
   }
 
   send(body: any, statusCode: number = 200, headers = {'Content-Type': 'application/json'}): ResponseMessage {
-    return new ResponseMessage(body, headers, statusCode);
+    return new ResponseMessage(JSON.stringify(body), headers, statusCode);
   }
 
-  error(msg: any, status: number) {
-    return new ResponseMessage(msg, {'Content-Type': 'application/json'}, status);
+  error(msg: any, status: number = 400, headers = {'Content-Type': 'application/json'}): ResponseMessage {
+    return new ResponseMessage(msg, headers, status);
   }
 }
