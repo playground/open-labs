@@ -2,6 +2,7 @@ import * as http from 'http';
 import { Observable, of, from } from 'rxjs';
 import { CosClient } from '@common/cos-client';
 import { Params } from '@common/params/params';
+import { util } from './utility';
 
 declare const process: any;
 let cosClient: CosClient;
@@ -10,8 +11,16 @@ http.createServer(function (request: any, response: { writeHead: (arg0: number, 
   cosClient = new CosClient(process.env);
   const target = process.env.TARGET ? process.env.TARGET : 'World' ;
   const msg = process.env.MSG ? process.env.MSG : 'Hello ' + target + '\n';
-  //  const params = action.params(request);
   let result: any;
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'OPTIONS, POST, GET, HEAD',
+    'Access-Control-Max-Age': 2592000, // 30 days
+    // 'Access-Control-Allow-Credentials': true
+    /** add other headers as per requirement */
+  };
   return new Promise((resolve, reject) => {
     action.exec(request)
     .subscribe((data: any) => {
@@ -19,10 +28,10 @@ http.createServer(function (request: any, response: { writeHead: (arg0: number, 
       console.log('$data', result);
     }, (err: any) => {
       console.log(err);
-      response.writeHead(400, {'Content-Type': 'application/json'});
-      resolve(response.end(`something went wrong...${err}\n`));
+      response.writeHead(400, headers);
+      resolve(response.end(`something went wrong...${JSON.stringify(err)}\n`));
     }, () => {
-      response.writeHead(200, {'Content-Type': 'application/json'});
+      response.writeHead(200, headers);
       resolve(response.end(JSON.stringify(result) + '\n'));
     });
   });
@@ -37,7 +46,7 @@ let action: any = {
     if(q.length>=2){
       q[1].split('&').forEach((item: string)=>{
         try {
-          result[item.split('=')[0]]=item.split('=')[1];
+          result[item.split('=')[0]]=decodeURIComponent(item.split('=')[1]);
         } catch (e) {
           result[item.split('=')[0]]='';
         }
@@ -49,11 +58,28 @@ let action: any = {
     return result;
   },
   exec: (request: any): any => {
-    if(request.method == 'GET') {
+    if(request.method === 'GET') {
       let params = action.params(request);
       return (action[params.action] || action.default)(params)
     } else {
-      return (action['list'] || action.default)(request.body)
+      return new Observable((observer: any) => {
+        let body = '';
+        request.on('data', (chunk: any) => {
+          body += chunk;
+        })
+        request.on('end', () => {
+          let params = JSON.parse(body);
+          (action[params.action] || action.default)(params)
+          .subscribe({
+            next: (res: any) => {
+              observer.next(res)
+              observer.complete()
+            }, error: (err: any) => observer.error(err)
+          })
+        })
+      })
+      // return of({action: 'test', body: request.body, url: request.url})        
+      // return (action[request.method] || action.default)(request)
     }
   },
   hello: (params: Params) => {
@@ -71,7 +97,7 @@ let action: any = {
       })
     });
   },
-  list2: (params: Params) => {
+  list: (params: Params) => {
     return new Observable((observer: any) => {
       let result: any;
       console.log('bucker: ', params.bucket)
@@ -94,7 +120,7 @@ let action: any = {
       });
     });
   },
-  list: (params: Params) => {
+  list_files: (params: Params) => {
     return new Observable((observer: any) => {
       let dirFiles: any;
       cosClient.ls(params.bucket, params.directory ? params.directory : '', params.delimiter ? params.delimiter : null)
@@ -116,6 +142,24 @@ let action: any = {
         observer.complete();
       });
     });
+  },
+  mkdir: (params: Params) => {
+    return cosClient.mkdir(params)
+  },
+  session: (params: Params) => {
+    return new Observable((observer: any) => {
+      const sessionId = util.encryptAES()
+      const seed = util.decryptAES(sessionId)
+      console.log(sessionId, seed)
+      observer.next(sessionId);
+      observer.complete();
+    });
+  },
+  signature: (params: Params) => {
+    return util.signature(params)
+  },
+  validate_session: (params: Params) => {
+    return of({valid: util.validateSession(params.sessionId)})
   },
   error: (msg: string) => {
     return new Observable((observer: any) => {

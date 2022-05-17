@@ -133,18 +133,18 @@ export class CosClient {
   deleteDir(params: Params) {
     return new Observable((observer) => {
       let items = 0;
-      let $dir = [];
+      let $dir: any = {};
       let files:any = [];
       console.log('$$$$$$file', params.directory)
-      params.directory.forEach((dir) => {
+      params.directory.forEach((dir, idx: number) => {
         let config = <Params>{
           key: dir,
           bucket: params.bucket
         }  
-        $dir.push(this.listAll(config, null, []));
+        $dir[idx] = this.listAll(config, null, []);
       });
       forkJoin($dir)
-      .subscribe((res) => {
+      .subscribe((res: any) => {
         res.forEach((keys: any[]) => {
           items += keys.length;
           keys.forEach((key) => {
@@ -164,14 +164,14 @@ export class CosClient {
     return new Observable((observer) => {
       console.log('$$$$$$file', params.filename)
       const files = params.filename instanceof Array ? params.filename : [params.filename]; 
-      let $files = [];
+      let $files: any = {};
       let config = {
         Bucket: params.bucket,
         Key: ''
       };
-      files.forEach((f) => {
+      files.forEach((f, idx: number) => {
         config.Key = f;
-        $files.push(this.client.deleteObject(config).promise());
+        $files[idx] = this.client.deleteObject(config).promise();
       });
       forkJoin($files)
       .subscribe(() => {
