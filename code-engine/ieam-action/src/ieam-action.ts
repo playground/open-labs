@@ -3,8 +3,12 @@ import { Observable, of, from } from 'rxjs';
 import { CosClient } from '@common/cos-client';
 import { Params } from '@common/params/params';
 import { util } from './utility';
+import { Stream } from 'stream';
+import * as readline from 'readline';
 
 declare const process: any;
+declare const Buffer: any;
+declare const console: any;
 let cosClient: CosClient;
 
 http.createServer(function (request: any, response: { writeHead: (arg0: number, arg1: { 'Content-Type': string; }) => void; end: (arg0: any) => void; }) {
@@ -61,25 +65,51 @@ let action: any = {
     if(request.method === 'GET') {
       let params = action.params(request);
       return (action[params.action] || action.default)(params)
-    } else {
+    } else if(request.method === 'POST') {
       return new Observable((observer: any) => {
-        let body = '';
-        request.on('data', (chunk: any) => {
-          body += chunk;
-        })
-        request.on('end', () => {
-          let params = JSON.parse(body);
-          (action[params.action] || action.default)(params)
-          .subscribe({
-            next: (res: any) => {
-              observer.next(res)
-              observer.complete()
-            }, error: (err: any) => observer.error(err)
+        const { headers } = request;
+        // console.log(headers['body'], body)
+        if(headers['content-type'].indexOf('multipart/form-data') == 0) {
+          // observer.next({body: body, headers: headers})
+          // observer.complete()
+          let body = '';
+          request.on('error', (err: any) => {
+            console.error(err);
+          }).on('data', (chunk: any) => {
+            body += chunk;
+          }).on('end', () => {
+            // let params = {body: Buffer.concat(body).toString()};
+            let params = {body: body};
+            // console.log(params)
+            (action['upload'] || action.default)(params)
+            .subscribe({
+              next: (res: any) => {
+                observer.next(res)
+                observer.complete()
+              }, error: (err: any) => observer.error(err)
+            })
+          });
+        } else {
+          let body = '';
+          request.on('data', (chunk: any) => {
+            body += chunk;
           })
-        })
+          request.on('end', () => {
+            let params = JSON.parse(body);
+            (action[params.action] || action.default)(params)
+            .subscribe({
+              next: (res: any) => {
+                observer.next(res)
+                observer.complete()
+              }, error: (err: any) => observer.error(err)
+            })
+          })  
+        }
       })
-      // return of({action: 'test', body: request.body, url: request.url})        
+      // return of({action: request.path, body: request['Content-Type'], url: request.url})        
       // return (action[request.method] || action.default)(request)
+    } else {
+      return of({msg: 'nothing to do'})        
     }
   },
   hello: (params: Params) => {
@@ -100,7 +130,7 @@ let action: any = {
   list: (params: Params) => {
     return new Observable((observer: any) => {
       let result: any;
-      console.log('bucker: ', params.bucket)
+      console.log('bucket: ', params.bucket)
       cosClient.ls(params.bucket, params.directory ? params.directory : '', params.delimiter ? params.delimiter : null)
       .subscribe((data: any) => {
         result = data;
@@ -145,6 +175,79 @@ let action: any = {
   },
   mkdir: (params: Params) => {
     return cosClient.mkdir(params)
+  },
+  upload2: (params: Params) => {
+    return of({upload: 'reload'})
+  },
+  upload: (params: Params) => {
+    return new Observable((observer: any) => {
+      console.log('$$$stream')
+      const stream = new Stream.PassThrough();
+      console.log('$$$stream through')
+      const buffer = Buffer.from(params['body'], 'utf-8');
+      // const buffer = params.body;
+      console.log('$$$stream buffer')
+      stream.end(buffer);
+
+      console.log('$$$before interface')
+      let rl = readline.createInterface({
+        input: stream,
+      });
+      console.log('$$$after interface')
+      let length = buffer.byteLength;
+      let file = {data: '', reading: false}
+      let config = {data: '', reading: false}
+      rl.on('line', function (line, lineCount, byteCount) {
+        console.log('reading', line)
+        if(line.indexOf('------WebKitFormBoundary') === 0) {
+          file.reading = false;
+          config.reading = false;
+        } else if(file.reading) {
+          if(line.trim().length > 0) {
+            file.data += line;
+          }
+        } else if(config.reading) {
+          if(line.length > 0) {
+            config.data += line;
+          }
+        } else if(line.indexOf('Content-Disposition:') === 0 && line.match(/name="file"/)) {
+          file.reading = true;
+          config.reading = false;
+        } else if(line.indexOf('Content-Disposition:') === 0 && line.match(/name="config"/)) {
+          config.reading = true;
+          file.reading = false;
+        }
+      })
+      .on('close', () => {
+        try {
+          let data = JSON.parse(config.data);
+          let fields = ['bucket', 'filename', 'acl'];
+          fields.forEach((field) => {
+            if(data[field]) {
+              console.log('field', field, data[field])
+              params[field] = data[field];
+            }
+          });
+          let matches: any = file.data.match(/^data:([A-Za-z-+\/.]+);base64,(.+)$/);
+          console.log('matches', matches)
+          if (!matches && matches.length !== 3) {
+            observer.next({result: 'Invalid file format'});
+            observer.complete();
+          }
+          params.body = Buffer.from(matches[2], 'base64');
+          params.contentType = matches[1];
+
+          cosClient.upload(params)
+          .subscribe((res: any) => {
+            observer.next(res);
+            observer.complete();
+          });
+        } catch(e) {
+          observer.next({result: `catch: ${e}`});
+          observer.complete();
+        }
+      })
+    });
   },
   session: (params: Params) => {
     return new Observable((observer: any) => {

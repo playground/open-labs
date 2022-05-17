@@ -18,6 +18,9 @@
     "ibm-login": "ibmcloud login --sso && npm run select-target && npm run select-project",
     "select-project": "ibmcloud ce project select -n ieam",
     "select-target": "ibmcloud target -g default",
+    "app-list": "ibmcloud ce app list",
+    "get-app": "ibmcloud ce app -n ieam-action-prod",
+    "get-logs": "ibmcloud ce app logs -f -n ieam-action-prod",
     "wskdeploy": "bin/deploy.js"
   },
   "author": "ljeff@us.ibm.com",
