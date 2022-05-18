@@ -1,4 +1,4 @@
-import { Observable, forkJoin, from } from 'rxjs';
+import { Observable, forkJoin, from, observable } from 'rxjs';
 import * as COS from'ibm-cos-sdk';
 import { Params } from '../params';
 
@@ -364,5 +364,40 @@ export class CosClient {
         observer.complete();
       }
     });
+  }
+  putBucketCors(params: Params) {
+    let config = {
+      Bucket: params.bucket,
+      CORSConfiguration: { 
+        CORSRules: [{
+          AllowedHeaders: ["*"],
+          AllowedMethods: [
+            "HEAD",
+            "GET",
+            "PUT",
+            "POST",
+            "DELETE"
+          ],
+          AllowedOrigins: ["*"]
+        }]
+      }
+    }
+    return new Observable((observer: any) => {
+      try {
+        this.client.putBucketCors(config, (err: any, res: any) => {
+          if(err) {
+            observer.next({result: `unable to put bucket cors: ${err}`});
+            observer.complete();
+          } else {
+            observer.next({res: res});
+            observer.complete();  
+          }
+        })
+      } catch (err) {
+        console.log(err);
+        observer.next({result: `unable to put bucket cors: ${err}`});
+        observer.complete();
+      }
+    })
   }
 }

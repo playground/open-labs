@@ -29,7 +29,7 @@ http.createServer(function (request: any, response: { writeHead: (arg0: number, 
     action.exec(request)
     .subscribe((data: any) => {
       result = data;
-      console.log('$data', result);
+      // console.log('$data', result);
     }, (err: any) => {
       console.log(err);
       response.writeHead(400, headers);
@@ -118,6 +118,18 @@ let action: any = {
   get_signed_url: (params: Params) => {
     return new Observable((observer: any) => {
       cosClient.getSignedUrl(params)
+      .subscribe({
+        error: (err: any) => observer.error(err),
+        next: (res: any) => {
+          observer.next(res);
+          observer.complete();
+        }
+      })
+    });
+  },
+  put_bucket_cors: (params: Params) => {
+    return new Observable((observer: any) => {
+      cosClient.putBucketCors(params)
       .subscribe({
         error: (err: any) => observer.error(err),
         next: (res: any) => {
