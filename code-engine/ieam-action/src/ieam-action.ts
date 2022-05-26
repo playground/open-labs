@@ -80,7 +80,6 @@ let action: any = {
           }).on('end', () => {
             // let params = {body: Buffer.concat(body).toString()};
             let params = {body: body};
-            // console.log(params)
             (action['upload'] || action.default)(params)
             .subscribe({
               next: (res: any) => {
@@ -90,6 +89,7 @@ let action: any = {
             })
           });
         } else {
+          let params = action.params(request);
           let body = '';
           request.on('data', (chunk: any) => {
             body += chunk;
@@ -188,29 +188,30 @@ let action: any = {
   mkdir: (params: Params) => {
     return cosClient.mkdir(params)
   },
+  delete: (params: Params) => {
+    return cosClient.delete(params)
+  },
   upload2: (params: Params) => {
     return of({upload: 'reload'})
   },
   upload: (params: Params) => {
     return new Observable((observer: any) => {
-      console.log('$$$stream')
+      // console.log('$$$stream')
       const stream = new Stream.PassThrough();
-      console.log('$$$stream through')
+      // console.log('$$$stream through')
       const buffer = Buffer.from(params['body'], 'utf-8');
       // const buffer = params.body;
-      console.log('$$$stream buffer')
+      // console.log('$$$stream buffer')
       stream.end(buffer);
 
-      console.log('$$$before interface')
       let rl = readline.createInterface({
         input: stream,
       });
-      console.log('$$$after interface')
       let length = buffer.byteLength;
       let file = {data: '', reading: false}
       let config = {data: '', reading: false}
       rl.on('line', function (line, lineCount, byteCount) {
-        console.log('reading', line)
+        // console.log('reading', line)
         if(line.indexOf('------WebKitFormBoundary') === 0) {
           file.reading = false;
           config.reading = false;
@@ -236,12 +237,12 @@ let action: any = {
           let fields = ['bucket', 'filename', 'acl'];
           fields.forEach((field) => {
             if(data[field]) {
-              console.log('field', field, data[field])
+              // console.log('field', field, data[field])
               params[field] = data[field];
             }
           });
           let matches: any = file.data.match(/^data:([A-Za-z-+\/.]+);base64,(.+)$/);
-          console.log('matches', matches)
+          // console.log('matches', matches)
           if (!matches && matches.length !== 3) {
             observer.next({result: 'Invalid file format'});
             observer.complete();

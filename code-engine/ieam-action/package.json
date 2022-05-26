@@ -13,6 +13,7 @@
     "build:image": "npm run build && npm run bundle && npm run wskdeploy --task=build",
     "build:push": "npm run wskdeploy --task=push",
     "deploy": "npm run wskdeploy --task=deploy",
+    "deploy:prod": "npm run build:doall --name=ieam-action --image_version=1.0.0 --env=prod",
     "deploy-dev": "npm run deploy --task=deployTS --package=demo --env=ieam-dev",
     "deploy-dev-api": "npm run deploy --task=deploy --package=demo --env=ieam-dev --api=true",
     "ibm-login": "ibmcloud login --sso && npm run select-target && npm run select-project",
