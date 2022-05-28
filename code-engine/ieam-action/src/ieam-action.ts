@@ -96,6 +96,7 @@ let action: any = {
           })
           request.on('end', () => {
             let params = JSON.parse(body);
+            // console.log('$$$action', params.action)
             (action[params.action] || action.default)(params)
             .subscribe({
               next: (res: any) => {
@@ -190,6 +191,10 @@ let action: any = {
   },
   delete: (params: Params) => {
     return cosClient.delete(params)
+  },
+  delete_folder: (params: Params) => {
+    console.log('$$$delete_folder')
+    return cosClient.deleteDir(params);
   },
   upload2: (params: Params) => {
     return of({upload: 'reload'})

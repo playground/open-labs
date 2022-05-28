@@ -135,7 +135,7 @@ export class CosClient {
       let items = 0;
       let $dir: any = {};
       let files:any = [];
-      // console.log('$$$$$$file', params.directory)
+      console.log('$$$$$$file', params.directory)
       params.directory.forEach((dir, idx: number) => {
         let config = <Params>{
           key: dir,
@@ -151,6 +151,7 @@ export class CosClient {
             files.push(key.Key);
           })
         });
+        // console.log('$$$files: ', files)
         params.filename = files;
         this.delete(params)
         .subscribe((res) => {
