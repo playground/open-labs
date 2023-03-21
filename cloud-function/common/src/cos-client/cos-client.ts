@@ -1,5 +1,5 @@
-import { Observable, forkJoin, from } from 'rxjs';
-const COS = require('ibm-cos-sdk');
+import { Observable, forkJoin, from, observable } from 'rxjs';
+import * as COS from'ibm-cos-sdk';
 import { Params } from '../params';
 
 export class CosClient {
@@ -24,10 +24,10 @@ export class CosClient {
     // console.log('$$$config', config)
     this.client = new COS.S3(config);
   }
-  ls(bucket, directory, delimiter = null)  {
-    return new Observable((observer) => {
+  ls(bucket: string, directory: string, delimiter = null)  {
+    return new Observable((observer: any) => {
       let data;
-      let config = { 
+      let config: any = { 
         Bucket: bucket,
         MaxKeys: 1000,
         Prefix: directory
@@ -133,24 +133,25 @@ export class CosClient {
   deleteDir(params: Params) {
     return new Observable((observer) => {
       let items = 0;
-      let $dir = [];
+      let $dir: any = {};
       let files:any = [];
       console.log('$$$$$$file', params.directory)
-      params.directory.forEach((dir) => {
+      params.directory.forEach((dir, idx: number) => {
         let config = <Params>{
           key: dir,
           bucket: params.bucket
         }  
-        $dir.push(this.listAll(config, null, []));
+        $dir[idx] = this.listAll(config, null, []);
       });
       forkJoin($dir)
-      .subscribe((res) => {
+      .subscribe((res: any) => {
         res.forEach((keys: any[]) => {
           items += keys.length;
           keys.forEach((key) => {
             files.push(key.Key);
           })
         });
+        // console.log('$$$files: ', files)
         params.filename = files;
         this.delete(params)
         .subscribe((res) => {
@@ -162,16 +163,16 @@ export class CosClient {
   }
   delete(params: Params) {
     return new Observable((observer) => {
-      console.log('$$$$$$file', params.filename)
+      // console.log('$$$$$$file', params.filename)
       const files = params.filename instanceof Array ? params.filename : [params.filename]; 
-      let $files = [];
+      let $files: any = {};
       let config = {
         Bucket: params.bucket,
         Key: ''
       };
-      files.forEach((f) => {
+      files.forEach((f, idx: number) => {
         config.Key = f;
-        $files.push(this.client.deleteObject(config).promise());
+        $files[idx] = this.client.deleteObject(config).promise();
       });
       forkJoin($files)
       .subscribe(() => {
@@ -364,5 +365,40 @@ export class CosClient {
         observer.complete();
       }
     });
+  }
+  putBucketCors(params: Params) {
+    let config = {
+      Bucket: params.bucket,
+      CORSConfiguration: { 
+        CORSRules: [{
+          AllowedHeaders: ["*"],
+          AllowedMethods: [
+            "HEAD",
+            "GET",
+            "PUT",
+            "POST",
+            "DELETE"
+          ],
+          AllowedOrigins: ["*"]
+        }]
+      }
+    }
+    return new Observable((observer: any) => {
+      try {
+        this.client.putBucketCors(config, (err: any, res: any) => {
+          if(err) {
+            observer.next({result: `unable to put bucket cors: ${err}`});
+            observer.complete();
+          } else {
+            observer.next({res: res});
+            observer.complete();  
+          }
+        })
+      } catch (err) {
+        console.log(err);
+        observer.next({result: `unable to put bucket cors: ${err}`});
+        observer.complete();
+      }
+    })
   }
 }

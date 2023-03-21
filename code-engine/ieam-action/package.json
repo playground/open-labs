@@ -1,0 +1,49 @@
+{
+  "name": "ieam-action",
+  "version": "1.0.0",
+  "description": "IEAM CE toolkit",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run tsc",
+    "build:live": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
+    "tsc": "tsc",
+    "test": "mocha -r ts-node/register test/functionsTest.ts",
+    "bundle": "webpack --config webpack.config.js",
+    "build:doall": "npm run wskdeploy --task=doall",
+    "build:image": "npm run build && npm run bundle && npm run wskdeploy --task=build",
+    "build:push": "npm run wskdeploy --task=push",
+    "deploy": "npm run wskdeploy --task=deploy",
+    "deploy:prod": "npm run build:doall --name=ieam-action --image_version=1.0.0 --env=prod",
+    "deploy-dev": "npm run deploy --task=deployTS --package=demo --env=ieam-dev",
+    "deploy-dev-api": "npm run deploy --task=deploy --package=demo --env=ieam-dev --api=true",
+    "ibm-login": "ibmcloud login --sso && npm run select-target && npm run select-project",
+    "select-project": "ibmcloud ce project select -n ieam",
+    "select-target": "ibmcloud target -g default",
+    "app-list": "ibmcloud ce app list",
+    "get-app": "ibmcloud ce app -n ieam-action-prod",
+    "get-logs": "ibmcloud ce app logs -f -n ieam-action-prod",
+    "wskdeploy": "bin/deploy.js"
+  },
+  "author": "ljeff@us.ibm.com",
+  "license": "ISC",
+  "dependencies": {
+    "crypto-js": "^4.1.1",
+    "ethers": "^5.6.6",
+    "jsonfile": "^6.1.0",
+    "rxjs": "^7.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^16.4.12",
+    "@typescript-eslint/parser": "^4.29.0",
+    "awesome-typescript-loader": "^5.2.1",
+    "copy-webpack-plugin": "^5.0.1",
+    "dotenv": "^10.0.0",
+    "nodemon": "^2.0.12",
+    "ts-loader": "^9.2.5",
+    "ts-node": "^10.1.0",
+    "typescript": "^3.9.10",
+    "webpack": "^5.49.0",
+    "webpack-cli": "^4.7.2",
+    "webpack-node-externals": "^3.0.0"
+  }
+}
