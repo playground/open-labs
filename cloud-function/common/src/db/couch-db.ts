@@ -1,5 +1,5 @@
+import { CloudantV1 } from '@ibm-cloud/cloudant';
 import { Observable } from 'rxjs';
-import * as Cloudant from '@cloudant/cloudant';
 
 class CouchDBClass {
   cloudant: any;
@@ -8,7 +8,7 @@ class CouchDBClass {
     let params = {
       url: 'https://d44a1815-07de-4807-bd7a-baf4b9adc1c4-bluemix:2808e309234a627482f093ca8880266394522d2b89c456ec3706cfd40aec3111@d44a1815-07de-4807-bd7a-baf4b9adc1c4-bluemix.cloudantnosqldb.appdomain.cloud'
     };
-    this.cloudant = Cloudant(params);
+    this.cloudant = CloudantV1.newInstance(params);
     this.db = this.cloudant.db.use(dbName);
   }
 
