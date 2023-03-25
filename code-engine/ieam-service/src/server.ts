@@ -32,7 +32,7 @@ export class Server {
       req.on('data', (data) => {
         body += data
       })
-      .on('close', () => {
+      .on('end', () => {
         try {
           // console.log(body)
           let data = JSON.parse(body);
@@ -81,7 +81,7 @@ export class Server {
       .subscribe({
         next: (params: Params) => {
           console.log(params)
-          res.json({'result': params})
+          res.send({'result': params})
         }, error: (err) => next(err)
       })
     })

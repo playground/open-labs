@@ -74,7 +74,7 @@ let build = {
       build.shell(arg,`done building ${imageName} image`, `failed to build ${imageName} image`)
       .subscribe(() => {
         let registry = privateRegion ? cr[region].private : cr[region].public;
-        let tagImageName = `${registry}/${namespace}/${name}-${env}:${version}`;
+        let tagImageName = `${registry}/${namespace}/${name}-${env}_${platform}:${version}`;
         let arg = `docker tag ${imageName} ${tagImageName}`
         build.shell(arg,`done tagging ${imageName} image`, `failed to tage ${imageName} image`)
         .subscribe(() => {
