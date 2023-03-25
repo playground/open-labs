@@ -1,9 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 const CopyPlugin = require('copy-webpack-plugin');
-const { TsConfigPathsPlugin } = require('awesome-typescript-loader');
 const { ContextReplacementPlugin, IgnorePlugin } = require('webpack');
 const dist = 'dist';  // be aware 'dist' folder is also used for tsconfig output
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 var nodeModules = {};
 // fs.readdirSync('node_modules')
@@ -15,6 +15,13 @@ var nodeModules = {};
 //   });
 
 module.exports = {
+  //stats: {
+  //  // Configure the console output
+  //  errorDetails: true, //this does show errors
+  //  colors: false,
+  //  modules: true,
+  //  reasons: true
+  //},
   entry: {
     'demo-action': `./src/demo-action.ts`
   },
@@ -26,6 +33,7 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
+        use: 'ts-loader',
         use: {
           loader: 'ts-loader',
           options: {
@@ -37,33 +45,31 @@ module.exports = {
     ],
   },
   plugins: [
-    new CopyPlugin([
-      {
-        from: 'dist/common/src/cos-client.js',
-        to: '../js/cos-client.js',
-        toType: 'file',
-      },
-      {
-        from: 'dist/common/src/utility.js',
-        to: '../js/utility.js',
-        toType: 'file',
-      },
-      {
-        from: 'dist/common/src/messenger.js',
-        to: '../js/messenger.js',
-        toType: 'file',
-      },
-      {
-        from: 'dist/demo/src/demo-action.js',
-        to: '../index.js',
-        toType: 'file',
-      }
-    ])
+    //new CopyPlugin({
+    //  patterns: [
+    //    {
+    //      from: 'dist/common/src/cos-client.js',
+    //      to: '../js/cos-client.js'
+    //    },
+    //    {
+    //      from: 'dist/common/src/utility.js',
+    //      to: '../js/utility.js'
+    //    },
+    //    {
+    //      from: 'dist/common/src/messenger.js',
+    //      to: '../js/messenger.js'
+    //    },
+    //    {
+    //      from: 'dist/demo/src/demo-action.js',
+    //      to: '../index.js'
+    //    }  
+    //  ]
+    //})
   ],
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.json'],
     plugins: [
-      new TsConfigPathsPlugin({configFile: './tsconfig.json'})
+      new TsconfigPathsPlugin({ configFile: "./tsconfig.json" })
     ],
     alias: {
       '@common/*': '../common/src'

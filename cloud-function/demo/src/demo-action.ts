@@ -1,12 +1,12 @@
-import { forkJoin, Observable, of, from } from 'rxjs';
-import { ApiParams } from '@common/params/api-params';
-import { Messenger } from '@common/messenger';
-import { util } from '@common/utility';
 import { CosClient } from '@common/cos-client';
-import { mkdirSync, readdir, readFileSync, stat, existsSync } from 'fs';
+import { ApiParams } from '@common/params';
+import { Messenger, util } from '@common/utils';
+import { existsSync, mkdirSync, readdir, readFileSync, stat } from 'fs';
 import path = require('path');
-const multipart = require('parted').multipart;
+import { forkJoin, Observable, of } from 'rxjs';
 import str2stream = require('string-to-stream');
+
+const multipart = require('parted').multipart;
 const cp = require('child_process'),
 exec = cp.exec;
 
@@ -36,8 +36,8 @@ export default function main(params: ApiParams) {
 let action = {
   exec: (params: ApiParams) => {
     const baseUrl = 'https://service.us.apiconnect.ibmcloud.com/gws/apigateway/api/646d429a9e5f06572b1056ccc9f5ba4de6f5c30159f10fcd1f1773f58d35579b/demo/';
-    let path = params['__ow_headers']['x-forwarded-url'].replace(baseUrl, '').replace(/\//g, '_');
-    console.log('$$$$$$', params['__ow_path'], path)
+    let reqPath = params['__ow_headers']['x-forwarded-url'].replace(baseUrl, '').replace(/\//g, '_');
+    console.log('$$$$$$', params['__ow_path'], reqPath)
     params.days = params.days ? params.days : '1';
     if(!existsSync('/upload')) {
       mkdirSync('/upload');
@@ -46,7 +46,7 @@ let action = {
       const date = util.formatMD(util.getDate());
       params.date = `${date.year}${date.month}${date.day}`;
     }
-    return (action[path] || action[params.method] || action.default)(params);
+    return (action[reqPath] || action[params.method] || action.default)(params);
   },
   demo_get: (params: ApiParams) => {
     return of({data: 'test demo get'});

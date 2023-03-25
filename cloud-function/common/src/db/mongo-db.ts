@@ -1,5 +1,5 @@
-import { Observable, from, forkJoin } from 'rxjs';
-import { util } from '../utility';
+import { forkJoin, Observable } from 'rxjs';
+
 const MongoClient = require('mongodb').MongoClient;
 const Server = require('mongodb').Server;
 const pkg = require('mongodb/package.json');
