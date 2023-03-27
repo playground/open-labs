@@ -1,6 +1,6 @@
 {
   "name": "ieam-service",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "IEAM Backend Services with Code Engine",
   "main": "index.js",
   "scripts": {
