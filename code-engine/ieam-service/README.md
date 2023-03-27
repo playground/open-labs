@@ -36,4 +36,5 @@ container-registry[cr]              1.0.6                        true
 
 ## Development
 - npm install
+- Make a copy of env-example.json and it to .env-local.json and fill in the values for each environment as needed
 - npm run watch:start - will run service locally and hot reload when there are code changes

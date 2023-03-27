@@ -17,6 +17,7 @@ if(fs.existsSync('../.env-local')) {
 const env = process.env.npm_config_env || 'prod';
 const namespace = process.env.npm_config_namespace || 'ieam';
 const name = process.env.npm_config_name;
+const appName = process.env.npm_config_appname;
 const platform = process.env.npm_config_platform || 'amd64';
 const task = process.env.npm_config_task;
 const region = process.env.npm_config_region || 'global';
@@ -25,7 +26,6 @@ const update = process.env.npm_config_create ? 'create' : 'update';
 const version = pkg.version;
 
 let imageName
-let appName 
 console.log(task)
 if(!task) {
   console.log(`specify --task taskname...`)
@@ -45,7 +45,9 @@ if(task == 'doall' || task == 'deploy' || task == 'build' || task == 'push' || t
     process.exit(0)  
   }
   imageName = `${name}-${env}_${platform}:${version}`;
-  appName = `${name}-${env}`;
+  if(!appName) {
+    appName = `${name}-${env}`;
+  }
   console.log(appName, imageName)
 }
 
@@ -117,7 +119,7 @@ let build = {
     let pEnv = ceAccess[env];
     let registry = privateRegion ? cr[region].private : cr[region].public;
     let tagImageName = `${registry}/${namespace}/${name}-${env}_${platform}:${version}`;
-    let arg = `ibmcloud ce application ${update} -n ${appName} --image ${tagImageName}`
+    let arg = `ibmcloud ce application ${update} -n ${appName} --image ${tagImageName} --registry-secret ${pEnv.REGISTRY_ACCESS_SECRET}`
     arg += ` --env bucket=${pEnv.bucket} --env HZN_ORG_ID=${pEnv.HZN_ORG_ID}`;
     arg += ` --env HZN_EXCHANGE_USER_AUTH=${pEnv.HZN_EXCHANGE_USER_AUTH} --env HZN_FSS_CSSURL=${pEnv.HZN_FSS_CSSURL}`;
     arg += ` --env HZN_EXCHANGE_URL=${pEnv.HZN_EXCHANGE_URL}`;
@@ -145,6 +147,9 @@ let build = {
       console.log('Please specify a valid region.')
       process.exit(0);
     }
+  },
+  codeEngineSecret: () => {
+
   },
   shell: (arg, success='command executed successfully', error='command failed', prnStdout=true, options={maxBuffer: 1024 * 2000}) => {
     return new Observable((observer) => {
