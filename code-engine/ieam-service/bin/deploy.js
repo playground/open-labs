@@ -17,7 +17,7 @@ if(fs.existsSync('../.env-local')) {
 const env = process.env.npm_config_env || 'prod';
 const namespace = process.env.npm_config_namespace || 'ieam';
 const name = process.env.npm_config_name;
-const appName = process.env.npm_config_appname;
+let appName = process.env.npm_config_appname;
 const platform = process.env.npm_config_platform || 'amd64';
 const task = process.env.npm_config_task;
 const region = process.env.npm_config_region || 'global';
@@ -120,9 +120,14 @@ let build = {
     let registry = privateRegion ? cr[region].private : cr[region].public;
     let tagImageName = `${registry}/${namespace}/${name}-${env}_${platform}:${version}`;
     let arg = `ibmcloud ce application ${update} -n ${appName} --image ${tagImageName} --registry-secret ${pEnv.REGISTRY_ACCESS_SECRET}`
-    arg += ` --env bucket=${pEnv.bucket} --env HZN_ORG_ID=${pEnv.HZN_ORG_ID}`;
-    arg += ` --env HZN_EXCHANGE_USER_AUTH=${pEnv.HZN_EXCHANGE_USER_AUTH} --env HZN_FSS_CSSURL=${pEnv.HZN_FSS_CSSURL}`;
-    arg += ` --env HZN_EXCHANGE_URL=${pEnv.HZN_EXCHANGE_URL}`;
+    Object.keys(pEnv).forEach((key) => {
+      if(key != 'REGISTRY_ACCESS_SECRET') {
+        arg += ` --env ${key}=${pEnv[key]}`
+      }
+    })
+    //arg += ` --env bucket=${pEnv.bucket} --env HZN_ORG_ID=${pEnv.HZN_ORG_ID}`;
+    //arg += ` --env HZN_EXCHANGE_USER_AUTH=${pEnv.HZN_EXCHANGE_USER_AUTH} --env HZN_FSS_CSSURL=${pEnv.HZN_FSS_CSSURL}`;
+    //arg += ` --env HZN_EXCHANGE_URL=${pEnv.HZN_EXCHANGE_URL}`;
     console.log('deploying...')
     build.shell(arg,`done add/update ${appName}`, `failed to add/update ${appName}`, false)
     .subscribe({
@@ -148,8 +153,35 @@ let build = {
       process.exit(0);
     }
   },
-  codeEngineSecret: () => {
-
+  appUrl: () => {
+    let arg = `ibmcloud ce application get -n ${appName} --output url`
+    build.shell(arg)
+    .subscribe({
+      complete: () => process.exit(0),
+      error: (err) => {
+        process.exit(0)
+      }
+    })
+  },
+  appInfo: () => {
+    let arg = `ibmcloud ce application get -n ${appName}`
+    build.shell(arg)
+    .subscribe({
+      complete: () => process.exit(0),
+      error: (err) => {
+        process.exit(0)
+      }
+    })
+  },
+  appLogs: () => {
+    let arg = `ibmcloud ce application logs -f -n ${appName}`
+    build.shell(arg)
+    .subscribe({
+      complete: () => process.exit(0),
+      error: (err) => {
+        process.exit(0)
+      }
+    })
   },
   shell: (arg, success='command executed successfully', error='command failed', prnStdout=true, options={maxBuffer: 1024 * 2000}) => {
     return new Observable((observer) => {

@@ -36,4 +36,5 @@ export interface Params {
   sig: string;
   addr: string;
   url: string;
+  email: string;
 }
