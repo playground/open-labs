@@ -2,8 +2,10 @@ import { HznParams, Params } from '@common/params';
 import { Utils } from '@common/utils';
 import cors from 'cors';
 import express from 'express';
-import http = require('http');
+import { existsSync } from 'fs';
+import jsonfile = require('jsonfile');
 import path = require('path');
+import request = require('request');
 import { Observable } from 'rxjs';
 
 export const utils = new Utils();
@@ -59,15 +61,17 @@ export class Server {
     return Buffer.from(data, 'base64').toString('ascii');
   }
   localEnv() {
-    const ceAccess = require('../.env-local.json');
-    if(ceAccess) {
-      const pEnv = ceAccess['dev'];
-      Object.keys(pEnv).forEach((key) => {
-        if(key != 'REGISTRY_ACCESS_SECRET') {
-          process.env[key] = pEnv[key]
-        }
-      })  
-    }    
+    if(existsSync('.env-local.json')) {
+      let ceAccess = jsonfile.readFileSync(`.env-local.json`);
+      if(ceAccess) {
+        const pEnv = ceAccess['dev'];
+        Object.keys(pEnv).forEach((key) => {
+          if(key != 'REGISTRY_ACCESS_SECRET') {
+            process.env[key] = pEnv[key]
+          }
+        })  
+      }
+    }      
   }  
 
   initialise() {
@@ -107,38 +111,24 @@ export class Server {
               'Authorization': `Basic ${b64}`,
               'Content-Type': 'application/json'
             };
-            //headers['Authorization'] = `Basic ${b64}`;
-            //headers['Content-Type'] = 'application/json';          
-            //let url = `${process.env['HZN_EXCHANGE_URL']}/orgs/${process.env['HZN_ORG_ID']}/users/${params.email}`
+            let url = `${process.env['HZN_EXCHANGE_URL']}/orgs/${process.env['HZN_ORG_ID']}/users/${params.email}`
             const body = {
               password: Math.random().toString(36).slice(2),
               admin: false,
               email: params.email
             }
-            const url = process.env['HZN_EXCHANGE_URL']
-            const hostname = url.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n\?\=]+)/im)[1]
-            const port = url.match(/:([0-9]+)/)[1]
-            const path = `/vi/orgs/${process.env['HZN_ORG_ID']}/users/${params.email}`
             const options = {
-              hostname: hostname,
-              port: port,
               method: 'POST',
-              path: path,
-              headers: headers
+              url: url,
+              headers: headers,
+              body: JSON.stringify(body)
             }
-            console.dir(options)
-            let request = http.request(options, (resp) => {
-              let chunks: any = [];
-              resp.on('data', (chunk) => chunks.push(chunk))
-              resp.on('end', () => {
-                let result = Buffer.concat(chunks)
-                console.log('result: ', result.toString())
-                res.send(result.toString())
-              })
-              resp.on('error', (error) => console.log('error: ', error))
+            request(options, (error, response) => {
+              if(error) {
+                console.log('error: ', error)
+              }
+              res.send(response.body)
             })
-            request.write(JSON.stringify(body))
-            request.end()  
           } catch(e) {
             console.log(e)
           }
