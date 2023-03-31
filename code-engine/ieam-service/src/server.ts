@@ -4,9 +4,14 @@ import cors from 'cors';
 import express from 'express';
 import { existsSync } from 'fs';
 import jsonfile = require('jsonfile');
+import ldap = require('ldapjs');
+import ssha = require('node-ssha256');
 import path = require('path');
 import request = require('request');
 import { Observable } from 'rxjs';
+
+const cp = require('child_process'),
+exec = cp.exec;
 
 export const utils = new Utils();
 
@@ -72,7 +77,128 @@ export class Server {
         })  
       }
     }      
+  }
+  ldapSearch() {
+    return new Observable((observer) => {
+      const client = ldap.createClient({
+        url: [process.env['LDAP_URL']]
+      });
+            
+      client.on('connectError', (err) => {
+        // handle connection error
+        console.log(err)
+        observer.error(err)
+      })
+      client.bind(process.env['LDAP_DN'], process.env['LDAP_SECRET'], (err) => {
+        if(err) {
+          console.log(err)
+          observer.error(err)  
+        } else {
+          console.log('ldap bound')
+          const opts = {
+            filter: '(&(l=Seattle)(email=*@ibm.com))',
+            scope: 'sub',
+            attributes: ['dn', 'sn', 'cn']
+          };
+          const newDN = "ou=homelab,dc=localhost";
+          const newUser = {
+            cn: 'guy',
+            sn: 'guy',
+            uid: '123',
+            mail: 'labeuser1@ibm.com',
+            objectClass: 'inetOrgPerson',
+            userPassword: ssha.create('s00prs3cr3+')
+          }
+          client.add(newDN, newUser, (err) => {
+            if(err) {
+              console.log(err)
+              observer.error(err)      
+            } else {
+              observer.next('user added')
+              observer.complete()
+            }
+          })
+        }
+      })
+    })
+  }
+  ldapTest() {
+    return new Observable((observer) => {
+      const client = ldap.createClient({
+        url: [process.env['LDAP_URL']]
+      });
+            
+      client.on('connectError', (err) => {
+        // handle connection error
+        console.log(err)
+        observer.error(err)
+      })
+      client.bind(process.env['LDAP_DN'], process.env['LDAP_SECRET'], (err) => {
+        if(err) {
+          console.log(err)
+          observer.error(err)  
+        } else {
+          console.log('ldap bound')
+          const newDN = "cn=guy3,ou=homelab,dc=localhost";
+          const newUser = {
+            cn: 'guy3',
+            sn: 'guy3',
+            uid: '123456',
+            mail: 'labeuser3@ibm.com',
+            objectClass: 'inetOrgPerson',
+            userPassword: ssha.create('s00prs3cr3+')
+          }
+          client.add(newDN, newUser, (err) => {
+            if(err) {
+              console.log(err)
+              observer.error(err)      
+            } else {
+              observer.next('user added')
+              observer.complete()
+            }
+          })
+        }
+      })
+    })  
+  }
+  registerUser(params: Params) {
+    //cloudctl login -a https://cp-console.ieam-roks-stage-1-70ea81cdef68a2eb78ece6d890b7dad3-0000.us-south.containers.appdomain.cloud -u ljeff -p IEAMUserPassw0rd$ -n ibm-edge --skip-ssl-validation
+    //cloudctl iam api-key-create "key name" -d "key description"
+    return new Observable((observer) => {
+      const client = ldap.createClient({
+        url: ['ldap://openldap-ieam.ibm-edge.svc.cluster.local:389']
+      });
+      
+      client.on('connectError', (err) => {
+        // handle connection error
+        console.log(err)
+        observer.error(err)
+      })
+      //const password = Math.random().toString(36).slice(2)
+      //let arg = `cloudctl login -a https://cp-console.ieam-8e873dd4c685acf6fd2f13f4cdfb05bb-0000.us-south.containers.appdomain.cloud/ -u ${params.email} -p ${password} -n ibm-edge-lab --skip-ssl-validation`
+    })
   }  
+  shell(arg: string, success='command executed successfully', error='command failed', prnStdout=true, options={maxBuffer: 1024 * 2000}) {
+    return new Observable((observer) => {
+      console.log(arg);
+      if(!prnStdout) {
+        options = Object.assign(options, {stdio: 'pipe', encoding: 'utf8'})
+      }
+      exec(arg, options, (err: any, stdout: any, stderr: any) => {
+        if(!err) {
+          if(prnStdout) {
+            console.log(stdout);
+          }
+          console.log(success);
+          observer.next(stdout);
+          observer.complete();
+        } else {
+          console.log(`${error}: ${err}`);
+          observer.error(err);
+        }
+      })  
+    });
+  }
 
   initialise() {
     this.localEnv();
@@ -99,12 +225,24 @@ export class Server {
       res.json(["Charisse", "Jeff", "Michael", "Michelle", "Sanjeev", "Susan"]);
     });
   
+    app.get("/ldap_test", (req: express.Request, res: express.Response) => {
+      this.ldapTest()
+      .subscribe({
+        next: (resp) => {
+          res.json(resp)
+        }, error: (err) => {
+          res.json({error: err})
+        }
+      })
+    });
+  
     app.post('/register_user', (req: express.Request, res: express.Response, next) => {
       this.streamData(req, res)
       .subscribe({
         next: (params: Params) => {
           console.log(params)
           try {
+            req.setEncoding('utf8');
             const b64 = this.encodeBase64(process.env['HUB_ADMIN'])
             console.log('here...')
             let headers: any = {
