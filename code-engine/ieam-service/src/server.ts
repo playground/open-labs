@@ -1,5 +1,3 @@
-import { HznParams, Params } from '@common/params';
-import { Utils } from '@common/utils';
 import cors from 'cors';
 import express from 'express';
 import { existsSync } from 'fs';
@@ -9,6 +7,9 @@ import ssha = require('node-ssha256');
 import path = require('path');
 import request = require('request');
 import { Observable } from 'rxjs';
+
+import { HznParams, Params } from '../common/params';
+import { Utils } from '../common/utils';
 
 const cp = require('child_process'),
 exec = cp.exec;
@@ -78,7 +79,7 @@ export class Server {
       }
     }      
   }
-  ldapSearch() {
+  ldapSearch(params: HznParams) {
     return new Observable((observer) => {
       const client = ldap.createClient({
         url: [process.env['LDAP_URL']]
@@ -89,33 +90,41 @@ export class Server {
         console.log(err)
         observer.error(err)
       })
-      client.bind(process.env['LDAP_DN'], process.env['LDAP_SECRET'], (err) => {
+      const bindDN = `${process.env['LDAP_ADMIN']},${process.env['LDAP_DN']}`
+      console.log('hello hello hello', bindDN, process.env['LDAP_ADMIN'])
+      client.bind(bindDN, process.env['LDAP_SECRET'], (err) => {
         if(err) {
           console.log(err)
           observer.error(err)  
         } else {
+          let result = 'ldap bind succeeded\n'
           console.log('ldap bound')
           const opts = {
-            filter: '(&(l=Seattle)(email=*@ibm.com))',
+            filter: `(uid=${params.id})`,
             scope: 'sub',
-            attributes: ['dn', 'sn', 'cn']
+            attributes: ['dn', 'sn', 'cn', 'userPassword', 'mail']
           };
-          const newDN = "ou=homelab,dc=localhost";
-          const newUser = {
-            cn: 'guy',
-            sn: 'guy',
-            uid: '123',
-            mail: 'labeuser1@ibm.com',
-            objectClass: 'inetOrgPerson',
-            userPassword: ssha.create('s00prs3cr3+')
-          }
-          client.add(newDN, newUser, (err) => {
+          const dn = "ou=homelab,dc=localhost";
+          client.search(dn, opts, (err, resp) => {
+            let searchList = []
             if(err) {
               console.log(err)
               observer.error(err)      
             } else {
-              observer.next('user added')
-              observer.complete()
+              resp.on('searchEntry', (entry) => {
+                result += `Found entry: ${entry}\n`
+                searchList.push(entry)
+              })
+              resp.on("error", (err) => {
+                result += "Search failed with " + err;
+                observer.error(result);
+              });   
+              resp.on('end', (retVal) => {
+                result += `Search results length: ${searchList.length}\n`;
+                console.log(result)
+                observer.next(searchList)
+                observer.complete()
+              })           
             }
           })
         }
@@ -133,18 +142,20 @@ export class Server {
         console.log(err)
         observer.error(err)
       })
-      client.bind(process.env['LDAP_DN'], process.env['LDAP_SECRET'], (err) => {
+      const bindDN = `${process.env['LDAP_ADMIN']},${process.env['LDAP_DN']}`
+      console.log('hello hello hello', bindDN, process.env['LDAP_ADMIN'])
+      client.bind(bindDN, process.env['LDAP_SECRET'], (err) => {
         if(err) {
           console.log(err)
           observer.error(err)  
         } else {
           console.log('ldap bound')
-          const newDN = "cn=guy3,ou=homelab,dc=localhost";
+          const newDN = "cn=guy5,ou=homelab,dc=localhost";
           const newUser = {
-            cn: 'guy3',
-            sn: 'guy3',
-            uid: '123456',
-            mail: 'labeuser3@ibm.com',
+            cn: 'guy5',
+            sn: 'guy5',
+            uid: '2468',
+            mail: 'labeuser5@ibm.com',
             objectClass: 'inetOrgPerson',
             userPassword: ssha.create('s00prs3cr3+')
           }
@@ -225,6 +236,24 @@ export class Server {
       res.json(["Charisse", "Jeff", "Michael", "Michelle", "Sanjeev", "Susan"]);
     });
   
+    app.get("/ldap_search", (req: express.Request, res: express.Response) => {
+      this.streamData(req, res)
+      .subscribe({
+        next: (params: HznParams) => {
+          console.log(params.id)
+          this.ldapSearch(params)
+          .subscribe({
+            next: (resp) => {
+              res.json(resp)
+            }, error: (err) => {
+              res.json({error: err})
+            }
+          })  
+        }, error: (err) => {
+          res.json({error: err})
+        }  
+      })
+    });
     app.get("/ldap_test", (req: express.Request, res: express.Response) => {
       this.ldapTest()
       .subscribe({
