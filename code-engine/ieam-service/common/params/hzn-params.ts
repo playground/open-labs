@@ -1,4 +1,4 @@
-import { ApiParams } from "./api-params";
+import { ApiParams } from './api-params';
 
 export interface HznParams extends ApiParams {
   type: string;
