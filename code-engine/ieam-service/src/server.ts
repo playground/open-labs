@@ -103,8 +103,8 @@ export class Server {
           console.log(err)
           observer.error(err)  
         } else {
-          let result = 'ldap bind succeeded\n'
-          console.log('ldap bound')
+          let result = ''
+          console.log('ldap bind succeeded')
           const opts = {
             filter: `(uid=${params.id})`,
             scope: 'sub',
@@ -119,17 +119,17 @@ export class Server {
               observer.error(err)      
             } else {
               resp.on('searchEntry', (entry) => {
-                result += `Found entry: ${entry}\n`
+                console.log('Found entry:')
+                result += `${entry}`
                 searchList.push(entry)
               })
               resp.on("error", (err) => {
-                result += "Search failed with " + err;
-                observer.error(result);
+                console.log("Search failed with " + err);
+                observer.error(err);
               });   
               resp.on('end', (retVal) => {
-                result += `Search results length: ${searchList.length}\n`;
-                console.log(result)
-                observer.next(searchList)
+                console.log(`Search results length: ${searchList.length}`)
+                observer.next(result)
                 observer.complete()
               })           
             }
@@ -299,8 +299,12 @@ export class Server {
           console.log(params.id, params.org)
           this.ldapSearch(params)
           .subscribe({
-            next: (resp) => {
-              res.json(resp)
+            next: (resp:string) => {
+              try {
+                res.json(JSON.parse(resp))
+              } catch(e) {
+                res.json({error: e})
+              }
             }, error: (err) => {
               res.json({error: err})
             }
