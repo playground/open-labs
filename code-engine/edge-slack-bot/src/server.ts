@@ -181,7 +181,7 @@ export class Server {
       (async () => {
         const result = await this.slackApp.client.chat.postMessage({
           token: process.env['SLACK_BOT_TOKEN'],
-          channel: '@makadodo',
+          channel: '#sowonderful',
           blocks: [{
             type: 'section', 
             text: {
