@@ -1,0 +1,26 @@
+{
+  "prod": {
+    "HZN_ORG_ID": "think-2023",
+    "HZN_EXCHANGE_USER_AUTH": "123",
+    "HZN_FSS_CSSURL": "123",
+    "HZN_EXCHANGE_URL": "123",
+    "bucket": "123",
+    "REGISTRY_ACCESS_SECRET": "myregistry"
+  },
+  "stage": {
+    "HZN_ORG_ID": "think-2023",
+    "HZN_EXCHANGE_USER_AUTH": "123",
+    "HZN_FSS_CSSURL": "123",
+    "HZN_EXCHANGE_URL": "123",
+    "bucket": "123",
+    "REGISTRY_ACCESS_SECRET": "global-registry"
+  },
+  "dev": {
+    "HZN_ORG_ID": "think-2023",
+    "HZN_EXCHANGE_USER_AUTH": "123",
+    "HZN_FSS_CSSURL": "123",
+    "HZN_EXCHANGE_URL": "123",
+    "bucket": "123",
+    "REGISTRY_ACCESS_SECRET": "global-registry"
+  }
+}

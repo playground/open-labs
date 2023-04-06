@@ -55,3 +55,5 @@ dist-old
 history*.txt
 notes/
 temp/
+.env*
+env-local*

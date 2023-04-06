@@ -1,7 +1,8 @@
-import { Observable } from 'rxjs';
-import  * as https from 'https';
+import * as https from 'https';
 import * as NodeUuid from 'node-uuid';
-import { ApiParams } from './params';
+import { Observable } from 'rxjs';
+
+import { ApiParams } from '../params';
 
 const util = {
   path: 'https://api.weather.com',
