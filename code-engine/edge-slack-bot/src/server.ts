@@ -15,12 +15,14 @@ export class Server {
   app = express();
   slackApp;
   receiver;
+  slackPort = process.env.SLACK_PORT || 3003;
+  slackChannel = '#sowonderful';
   apiUrl = `${process.env.SERVERLESS_ENDPOINT}`
   constructor(private port = 8080) {
     this.initialise()
   }
 
-  getParams(params: HznParams) {
+  getParams(params: LdapParams) {
     return Object.assign(this.params, params)
   }
   setCorsHeaders(req: express.Request, res: express.Response) {
@@ -31,7 +33,7 @@ export class Server {
 
   }
   streamData(req: express.Request, res: express.Response, parse = true) {
-    let params = this.getParams(req.query as unknown as HznParams);
+    let params = this.getParams(req.query as unknown as LdapParams);
     let body = ''
     return new Observable((observer) => {
       req.on('data', (data) => {
@@ -116,6 +118,7 @@ export class Server {
       this.slackApp = new App({
         token: process.env['SLACK_BOT_TOKEN'],
         signingSecret: process.env['SLACK_SIGNING_SECRET'],
+        receiver: this.receiver
         //customRoutes: [
         //  {
         //    path: '/staff',
@@ -137,7 +140,6 @@ export class Server {
         //installerOptions: {
         //  port: this.port
         //},
-        //receiver: this.receiver,
         //socketMode: true,
         //appToken: process.env['EDGE_BOT_TOKEN']
       });
@@ -164,35 +166,49 @@ export class Server {
           console.error(e);
         }
       });
+      this.slackApp.command('/ask', async({command, ack, say}) => {
+        try {
+          console.log('command call...')
+          await ack();
+          await say('Welcome Edge User!');
+        } catch(e) {
+          console.log('command call...')
+          console.log(e);
+          console.error(e);
+        }
+      });
       this.slackApp.message('hello', async ({ message, say }) => {
         // say() sends a message to the channel where the event was triggered
         await say(`Hey there <@${message.user}>!`);
       });
       
-      await this.slackApp.start(this.port)
-      console.log(`Edge Slack Bot is running on port ${this.port}`)
+      await this.slackApp.start(this.slackPort)
+      console.log(`Edge Slack Bot is running on port ${this.slackPort}`)
 
       resolve('')
     })
   }
 
-  directMessage(msg: string) {
+  directMessage(msg: string, channel: string) {
     return new Promise((resolve, reject) => {
       (async () => {
-        const result = await this.slackApp.client.chat.postMessage({
-          token: process.env['SLACK_BOT_TOKEN'],
-          channel: '#sowonderful',
-          blocks: [{
-            type: 'section', 
-            text: {
-              type: 'mrkdwn',
-              text: msg
-            }
-          }]
-        });
-        console.log(result)
-        resolve(result)
-      })();      
+        try {
+          const result = await this.slackApp.client.chat.postMessage({
+            token: process.env['SLACK_BOT_TOKEN'],
+            channel: '#sowonderful',
+            blocks: [{
+              type: 'section', 
+              text: {
+                type: 'mrkdwn',
+                text: msg
+              }
+            }]
+          });
+          resolve(result)  
+        } catch(e) {
+          reject(e);
+        }
+      })();                
     })
   }
   async initialise() {
@@ -224,9 +240,10 @@ export class Server {
     });
   
     app.get("/message", (req: express.Request, res: express.Response) => {
-      let params = this.getParams(req.query as unknown as HznParams);
+      let params = this.getParams(req.query as unknown as LdapParams);
       console.log(req.query)
-      this.directMessage('hey dude').then((result) => {
+      const channel = params.channel || this.slackChannel;
+      this.directMessage('hey dude', channel).then((result) => {
         res.json({result: 'message sent'});
       })
     });
@@ -237,9 +254,12 @@ export class Server {
         .subscribe({
           next: (params: LdapParams) => {
             console.log(params.fname, params.lname)
-            let msg = `Register\n>${params.fname} ${params.lname}\n>ibmid: ${params.ibmid}\n>email: ${params.email}\n>company: ${params.company}`
-            this.directMessage(msg).then((result) => {
+            const msg = `Register\n>${params.fname} ${params.lname}\n>ibmid: ${params.ibmid}\n>email: ${params.email}\n>company: ${params.company}`
+            const channel = params.channel || this.slackChannel;
+            this.directMessage(msg, channel).then((result) => {
               res.send({result: result});
+            }).catch((e) => {
+              res.send({error: e})
             })
           }, error: (err) => {
             res.send({error: err})
@@ -283,7 +303,7 @@ export class Server {
     //  }
     //});
   
-    app.listen(3003, () => {
+    app.listen(this.port, () => {
       console.log(`Started on ${this.port}`);
     });
   }

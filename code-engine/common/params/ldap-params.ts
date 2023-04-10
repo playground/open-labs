@@ -7,4 +7,5 @@ export interface LdapParams extends HznParams {
   fname: string;
   lname: string;
   company: string;
+  channel: string;
 }
