@@ -4,6 +4,7 @@ import cors from 'cors';
 import express from 'express';
 import { existsSync } from 'fs';
 import jsonfile = require('jsonfile');
+import { Configuration, OpenAIApi } from 'openai';
 import path = require('path');
 import { Observable } from 'rxjs';
 
@@ -18,6 +19,7 @@ export class Server {
   slackPort = process.env.SLACK_PORT || 3003;
   slackChannel = '#sowonderful';
   apiUrl = `${process.env.SERVERLESS_ENDPOINT}`
+  openai;
   constructor(private port = 8080) {
     this.initialise()
   }
@@ -80,8 +82,13 @@ export class Server {
   cloudctlLogin(user: string, password: string) {
     let arg = `./cloudctl login -a ${process.env}`
   }
-  generateAPI() {
-    let arg 
+  initOpenAIAPI() {
+    const configuration = new Configuration({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+    
+    console.log(configuration)
+    this.openai = new OpenAIApi(configuration);     
   }
   shell(arg: string, success='command executed successfully', error='command failed', prnStdout=true, options={maxBuffer: 1024 * 2000}) {
     return new Observable((observer) => {
@@ -157,9 +164,19 @@ export class Server {
       });
       this.slackApp.command('/echo', async({command, ack, say}) => {
         try {
-          console.log('command call...')
+          console.log('command call...', command)
           await ack();
-          await say('Welcome Edge User!');
+          if(command.text.length == 0) {
+            await say('Welcome Edge User!  Ask me anything about Edge Computing...');
+          } else {
+            this.createCompletion(command.text).then(async (response: any) => {
+              if(response.data) {
+                await say(`${command.text}\n${response.data.choices[0].text}`)
+              } else {
+                await say('No result, please refine your query.')
+              }
+            })            
+          }
         } catch(e) {
           console.log('command call...')
           console.log(e);
@@ -168,9 +185,18 @@ export class Server {
       });
       this.slackApp.command('/ask', async({command, ack, say}) => {
         try {
-          console.log('command call...')
           await ack();
-          await say('Welcome Edge User!');
+          if(command.text.length == 0) {
+            await say('Welcome Edge User!  Ask me anything about Edge Computing...');
+          } else {
+            this.createCompletion(command.text).then(async (response: any) => {
+              if(response.data) {
+                await say(`${command.text}\n${response.data.choices[0].text}`)
+              } else {
+                await say('No result, please refine your query.')
+              }
+            })            
+          }
         } catch(e) {
           console.log('command call...')
           console.log(e);
@@ -211,8 +237,29 @@ export class Server {
       })();                
     })
   }
+  createCompletion(prompt: string) {
+    return new Promise((resolve, reject) => {
+      (async () => {
+        try {
+          const response = await this.openai.createCompletion({
+            model: process.env.MODEL_ID,
+            prompt: prompt,
+            max_tokens: 200
+          })
+          if (response.data) {
+            console.log('choices: ', response.data.choices)
+            resolve(response);
+          }
+        } catch (err) {
+          console.log('err: ', err)
+          reject(err);
+        }
+      })();                
+    })
+  }
   async initialise() {
     this.localEnv();
+    this.initOpenAIAPI();
     await this.initSlack();
     console.log('here......')
     let app = this.app;
