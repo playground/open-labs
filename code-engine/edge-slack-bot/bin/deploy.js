@@ -3,16 +3,8 @@ const cp = require('child_process'),
   exec = cp.exec;
 const fs = require('fs');
 const { Observable } = require('rxjs');
-const dotenv = require('dotenv');
 const ceAccess = require('../.env-local.json');
 const pkg = require('../package.json');
-
-if(fs.existsSync('../.env-local')) {
-  const localEnv = dotenv.parse(fs.readFileSync('../.env-local'));
-  for(var i in localEnv) {
-    process.env[i] = localEnv[i];
-  }
-}
 
 const env = process.env.npm_config_env || 'prod';
 const namespace = process.env.npm_config_namespace || 'ieam';
